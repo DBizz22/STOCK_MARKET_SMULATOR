@@ -1,0 +1,3 @@
+add_executable(alphavantageApiTest alphavantageApiTest.cpp)
+target_link_libraries(alphavantageApiTest PRIVATE alphavantageStatic httpClientMock gtest_main gmock_main)
+gtest_discover_tests(alphavantageApiTest)

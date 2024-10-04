@@ -1,0 +1,162 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "MinGW Debug Config",
+            "displayName": "MinGW Debug Config GCC mingw32(ucrt64)",
+            "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
+                "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "MinGW Release Config",
+            "displayName": "MinGW Release Config GCC mingw32(ucrt64)",
+            "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
+                "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "Ninja Debug Config",
+            "displayName": "Ninja Debug Config GCC mingw32(ucrt64)",
+            "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
+                "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Ninja Release Config",
+            "displayName": "Ninja Release Config GCC mingw32(ucrt64)",
+            "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
+                "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "MinGW Debug Build",
+            "configurePreset": "MinGW Debug Config",
+            "displayName": "MinGW Debug Build",
+            "cleanFirst": false
+        },
+        {
+            "name": "MinGW Release Build",
+            "configurePreset": "MinGW Release Config",
+            "displayName": "MinGW Release Build",
+            "cleanFirst": true
+        },
+        {
+            "name": "Ninja Debug Build",
+            "configurePreset": "Ninja Debug Config",
+            "displayName": "Ninja Debug Build",
+            "cleanFirst": true
+        },
+        {
+            "name": "Ninja Release Build",
+            "configurePreset": "Ninja Debug Config",
+            "displayName": "Ninja Release Build",
+            "cleanFirst": true
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "MinGW Debug Test",
+            "configurePreset": "MinGW Debug Config",
+            "displayName": "MinGW Debug Test",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "MinGW Release Test",
+            "configurePreset": "MinGW Release Config",
+            "displayName": "MinGW Release Test",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "Ninja Debug Test",
+            "configurePreset": "Ninja Debug Config",
+            "displayName": "Ninja Debug Test",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "Ninja Release Test",
+            "configurePreset": "MinGW Debug Config",
+            "displayName": "Ninja Release Test",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "MinGW Release Pack",
+            "configurePreset": "MinGW Release Config",
+            "displayName": "MinGW Release Pack",
+            "generators": [
+                "ZIP"
+            ],
+            "packageDirectory": "${sourceDir}/build/Packages"
+        },
+        {
+            "name": "Ninja Release Pack",
+            "configurePreset": "Ninja Release Config",
+            "displayName": "Ninja Release Pack",
+            "generators": [
+                "ZIP"
+            ],
+            "packageDirectory": "${sourceDir}/build/Packages"
+        }
+    ]
+}
