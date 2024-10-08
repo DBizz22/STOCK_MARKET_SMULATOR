@@ -1,2 +1,4 @@
+include(GetBoost)
 add_subdirectory(httpClient)
 add_subdirectory(api)
+add_subdirectory(database)

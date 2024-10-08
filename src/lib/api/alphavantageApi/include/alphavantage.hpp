@@ -26,6 +26,7 @@ namespace stockApi
             std::string timestamp;
             std::string symbol;
             double price;
+            StockData();
             void reset();
             bool isEmpty() const;
             friend bool operator==(const StockData &lhs, const StockData &rhs);
@@ -41,6 +42,7 @@ namespace stockApi
             std::string fromCurrency;
             std::string toCurrency;
             double price;
+            ForexData();
             void reset();
             bool isEmpty() const;
             friend bool operator==(const ForexData &lhs, const ForexData &rhs);
@@ -56,6 +58,7 @@ namespace stockApi
             std::string fromCurrency;
             std::string toCurrency;
             std::map<std::string, double> datePrices;
+            ForexHistoryData();
             void reset();
             bool isEmpty() const;
             friend bool operator==(const ForexHistoryData &lhs, const ForexHistoryData &rhs);
@@ -71,6 +74,7 @@ namespace stockApi
             std::string symbol;
             std::string market;
             std::map<std::string, double> datePrices;
+            CryptoHistoryData();
             void reset();
             bool isEmpty() const;
             friend bool operator==(const CryptoHistoryData &lhs, const CryptoHistoryData &rhs);

@@ -22,6 +22,11 @@ double ConvertJsonStringToDouble(const std::string &str)
     return price;
 }
 
+stockApi::alphavantageApiSuite::StockData::StockData()
+{
+    price = 0;
+}
+
 void stockApi::alphavantageApiSuite::StockData::reset()
 {
     header.clear();
@@ -67,11 +72,10 @@ stockApi::alphavantageApiSuite::StockData stockApi::alphavantageApiSuite::tag_in
     return data;
 }
 
-/*stockApi::alphavantageApiSuite::StockData stockApi::alphavantageApiSuite::tag_invoke(const boost::json::value_to_tag<StockData> &, const boost::json::value &json)
+stockApi::alphavantageApiSuite::ForexData::ForexData()
 {
-    stockApi::alphavantageApiSuite::StockData data;
-    return data;
-}*/
+    price = 0;
+}
 
 void stockApi::alphavantageApiSuite::ForexData::reset()
 {
@@ -121,6 +125,10 @@ stockApi::alphavantageApiSuite::ForexData stockApi::alphavantageApiSuite::tag_in
     std::string price = ptr.as_object()["5. Exchange Rate"].as_string().c_str();
     data.price = ConvertJsonStringToDouble(price);
     return data;
+}
+
+stockApi::alphavantageApiSuite::ForexHistoryData::ForexHistoryData()
+{
 }
 
 void stockApi::alphavantageApiSuite::ForexHistoryData::reset()
@@ -196,6 +204,10 @@ bool stockApi::alphavantageApiSuite::operator!=(const stockApi::alphavantageApiS
              lhs.symbol == rhs.symbol &&
              lhs.market == rhs.market &&
              lhs.datePrices == rhs.datePrices);
+}
+
+stockApi::alphavantageApiSuite::CryptoHistoryData::CryptoHistoryData()
+{
 }
 
 void stockApi::alphavantageApiSuite::CryptoHistoryData::reset()

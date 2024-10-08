@@ -1,0 +1,3 @@
+add_library(mySqlClient STATIC mySqlClient.cpp)
+target_include_directories(mySqlClient PUBLIC include ${EXTERNAL_HEADERS})
+target_link_libraries(mySqlClient databaseClientInterface Boost::date_time soci_core soci_mysql)

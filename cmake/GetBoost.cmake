@@ -13,7 +13,7 @@ FetchContent_MakeAvailable(boost)]=]
 set(BUILD_SHARED_LIBS OFF)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_DEBUG_LIBS OFF)
-set(BOOST_INCLUDE_LIBRARIES json container)
+set(BOOST_INCLUDE_LIBRARIES json container date_time)
 set(BOOST_ENABLE_CMAKE ON)
 
 # Download and extract the boost library from GitHub
