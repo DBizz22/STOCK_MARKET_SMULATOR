@@ -32,7 +32,7 @@ const std::string CreateStocksTableQuery("CREATE TABLE IF NOT EXISTS stocks ("
                                          "`symbol` VARCHAR(45) NOT NULL,"
                                          "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
                                          "`currentPrice` DECIMAL(12, 6) NOT NULL,"
-                                         "`lastUpdate` DATETIME NOT NULL,"
+                                         "`lastUpdate` DATE NOT NULL,"
                                          "PRIMARY KEY(`ID`))");
 
 const std::string CreateEquitiesTableQuery("CREATE TABLE IF NOT EXISTS equities ("
@@ -53,11 +53,25 @@ const std::string CreateEquitiesTableQuery("CREATE TABLE IF NOT EXISTS equities 
                                            "ON DELETE NO ACTION "
                                            "ON UPDATE NO ACTION)");
 
+const std::string CreateDeleteRelatedProfilesAndEquitiesTrigger("CREATE TRIGGER IF NOT EXISTS `DeleteRelatedProfilesAndEquities` "
+                                                                "BEFORE DELETE ON `accounts` FOR EACH ROW BEGIN "
+                                                                "DELETE FROM equities "
+                                                                "WHERE profile = ANY(SELECT account "
+                                                                "FROM profiles WHERE account = OLD.ID); "
+                                                                "DELETE FROM profiles WHERE account = OLD.ID; "
+                                                                "END");
+
+const std::string CreateDeleteRelatedEquitiesTrigger("CREATE TRIGGER IF NOT EXISTS `DeleteRelatedEquities` "
+                                                     "BEFORE DELETE ON `profiles` FOR EACH ROW BEGIN "
+                                                     "DELETE FROM equities WHERE profile = OLD.ID; "
+                                                     "END");
+
 bool database::mysql::MySQLClient::inputQuery(const std::string &query)
 {
     try
     {
         sql << query;
+        return true;
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -70,7 +84,6 @@ bool database::mysql::MySQLClient::inputQuery(const std::string &query)
         std::cerr << e.what() << '\n';
         return false;
     }
-    return true;
 }
 
 template <typename T>
@@ -81,7 +94,7 @@ T database::mysql::MySQLClient::singleOutputQuery(std::string query)
     try
     {
         sql << query, soci::into(record, ind);
-        if (ind != soci::i_ok)
+        if (!sql.got_data() || ind != soci::i_ok)
             record.reset();
     }
     catch (soci::mysql_soci_error const &e)
@@ -134,6 +147,8 @@ database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) :
         sql << CreateProfilesTableQuery;
         sql << CreateStocksTableQuery;
         sql << CreateEquitiesTableQuery;
+        sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
+        sql << CreateDeleteRelatedEquitiesTrigger;
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -158,6 +173,8 @@ void database::mysql::MySQLClient::reset(const connectionParams &credentials)
         sql << CreateProfilesTableQuery;
         sql << CreateStocksTableQuery;
         sql << CreateEquitiesTableQuery;
+        sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
+        sql << CreateDeleteRelatedEquitiesTrigger;
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -172,24 +189,66 @@ void database::mysql::MySQLClient::reset(const connectionParams &credentials)
 
 bool database::mysql::MySQLClient::is_connected()
 {
-    return sql.is_connected();
+    try
+    {
+        return sql.is_connected();
+    }
+    catch (soci::mysql_soci_error const &e)
+    {
+        std::cerr << "MySQL error: " << e.err_num_
+                  << " " << e.what() << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return false;
+}
+
+void database::mysql::MySQLClient::disconnect()
+{
+    try
+    {
+        sql.close();
+    }
+    catch (soci::mysql_soci_error const &e)
+    {
+        std::cerr << "MySQL error: " << e.err_num_
+                  << " " << e.what() << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 }
 
 void database::mysql::MySQLClient::reconnect()
 {
-    sql.reconnect();
+    try
+    {
+        sql.reconnect();
+    }
+    catch (soci::mysql_soci_error const &e)
+    {
+        std::cerr << "MySQL error: " << e.err_num_
+                  << " " << e.what() << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 }
 
 bool database::mysql::MySQLClient::insert(const AccountRecord &account)
 {
     std::string query = "INSERT INTO accounts(username,password)";
-    query += " VALUES(" + account.username + "\", \"" + account.password + "\")";
+    query += " VALUES(\"" + account.username + "\", \"" + account.password + "\")";
     return inputQuery(query);
 }
 
 bool database::mysql::MySQLClient::update(const AccountRecord &account)
 {
-    std::string query = "UPDATE accounts SET username = \"" + account.username + "\" WHERE password = \"" + account.password + "\"";
+    std::string query = "UPDATE accounts SET username = \"" + account.username + "\", password = \"" + account.password + "\"";
     query += " WHERE ID = " + std::to_string(account.ID);
     return inputQuery(query);
 }

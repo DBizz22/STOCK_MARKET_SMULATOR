@@ -35,6 +35,7 @@ namespace database
             MySQLClient &operator=(const MySQLClient &copy) = default;
             void reset(const connectionParams &credentials);
             bool is_connected() override;
+            void disconnect() override;
             void reconnect() override;
             bool insert(const AccountRecord &account) override;
             bool update(const AccountRecord &account) override;
