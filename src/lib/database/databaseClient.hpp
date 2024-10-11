@@ -4,25 +4,29 @@
 #include <string>
 #include <vector>
 #include "soci/soci.h"
+#include <ctime>
+#include <iomanip>
 
 namespace database
 {
     struct AccountRecord
     {
-        unsigned int ID;
+        unsigned int ID{0};
         std::string username;
         std::string password;
-        AccountRecord()
-        {
-            ID = 0;
-            username.clear();
-            password.clear();
-        }
         void reset()
         {
             ID = 0;
             username.clear();
             password.clear();
+        }
+        bool operator==(const AccountRecord &other) const
+        {
+            return ID == other.ID && username == other.username && password == other.password;
+        }
+        bool operator!=(const AccountRecord &other) const
+        {
+            return !(*this == other);
         }
         bool isEmpty() const
         {
@@ -32,19 +36,11 @@ namespace database
 
     struct ProfileRecord
     {
-        unsigned int ID;
-        unsigned int accountID;
+        unsigned int ID{0};
+        unsigned int accountID{0};
         std::string name;
         std::string currency;
         double initialValue;
-        ProfileRecord()
-        {
-            ID = 0;
-            accountID = 0;
-            name.clear();
-            currency.clear();
-            initialValue = 0.0;
-        }
         void reset()
         {
             ID = 0;
@@ -52,6 +48,14 @@ namespace database
             name.clear();
             currency.clear();
             initialValue = 0.0;
+        }
+        bool operator==(const ProfileRecord &other) const
+        {
+            return ID == other.ID && accountID == other.accountID && name == other.name && currency == other.currency && initialValue == other.initialValue;
+        }
+        bool operator!=(const ProfileRecord &other) const
+        {
+            return !(*this == other);
         }
         bool isEmpty() const
         {
@@ -61,21 +65,12 @@ namespace database
 
     struct StockRecord
     {
-        unsigned int ID;
+        unsigned int ID{0};
         std::string name;
         std::string symbol;
         std::string currency;
-        double currentPrice;
+        double currentPrice{0};
         std::string lastUpdate;
-        StockRecord()
-        {
-            ID = 0;
-            name.clear();
-            symbol.clear();
-            currency.clear();
-            currentPrice = 0.0;
-            lastUpdate.clear();
-        }
         void reset()
         {
             ID = 0;
@@ -84,6 +79,14 @@ namespace database
             currency.clear();
             currentPrice = 0.0;
             lastUpdate.clear();
+        }
+        bool operator==(const StockRecord &other) const
+        {
+            return ID == other.ID && name == other.name && symbol == other.symbol && currency == other.currency && currentPrice == other.currentPrice && lastUpdate == other.lastUpdate;
+        }
+        bool operator!=(const StockRecord &other) const
+        {
+            return !(*this == other);
         }
         bool isEmpty() const
         {
@@ -93,19 +96,11 @@ namespace database
 
     struct EquityRecord
     {
-        unsigned int ID;
-        unsigned int profileID;
-        unsigned int stockID;
-        double initialValue;
-        double quantity;
-        EquityRecord()
-        {
-            ID = 0;
-            profileID = 0;
-            stockID = 0;
-            initialValue = 0.0;
-            quantity = 0.0;
-        }
+        unsigned int ID{0};
+        unsigned int profileID{0};
+        unsigned int stockID{0};
+        double initialValue{0};
+        double quantity{0};
         void reset()
         {
             ID = 0;
@@ -113,6 +108,14 @@ namespace database
             stockID = 0;
             initialValue = 0.0;
             quantity = 0.0;
+        }
+        bool operator==(const EquityRecord &other) const
+        {
+            return ID == other.ID && profileID == other.profileID && stockID == other.stockID && initialValue == other.initialValue && quantity == other.quantity;
+        }
+        bool operator!=(const EquityRecord &other) const
+        {
+            return !(*this == other);
         }
         bool isEmpty() const
         {
@@ -129,6 +132,7 @@ namespace database
         DatabaseClient &operator=(DatabaseClient &&copy) noexcept = default;
         DatabaseClient &operator=(const DatabaseClient &copy) = default;
         virtual bool is_connected() = 0;
+        virtual void disconnect() = 0;
         virtual void reconnect() = 0;
         virtual bool insert(const AccountRecord &account) = 0;
         virtual bool update(const AccountRecord &account) = 0;
@@ -208,7 +212,11 @@ namespace soci
             p.symbol = v.get<std::string>("symbol", "");
             p.currency = v.get<std::string>("currency", "");
             p.currentPrice = v.get<double>("currentPrice", 0);
-            p.lastUpdate = v.get<std::string>("lastUpdate", "");
+
+            std::tm dateTime = v.get<std::tm>("lastUpdate");
+            char buffer[80];
+            strftime(buffer, 80, "%Y-%m-%d", &dateTime);
+            p.lastUpdate = buffer;
         }
 
         static void to_base(const database::StockRecord &p, values &v, indicator &ind)
@@ -218,7 +226,12 @@ namespace soci
             v.set("symbol", p.symbol);
             v.set("currency", p.currency);
             v.set("currentPrice", p.currentPrice);
-            v.set("lastUpdate", p.lastUpdate);
+
+            const char *format = "%Y-%m-%d";
+            std::tm now;
+            std::istringstream ss(p.lastUpdate);
+            ss >> std::get_time(&now, format);
+            v.set("lastUpdate", now);
         }
     };
 
