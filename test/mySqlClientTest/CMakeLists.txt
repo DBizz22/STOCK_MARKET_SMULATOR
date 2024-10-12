@@ -1,0 +1,3 @@
+add_executable(mySqlClientTest mySqlClientTest.cpp)
+target_link_libraries(mySqlClientTest PRIVATE mySqlClient gtest_main gmock_main)
+gtest_discover_tests(mySqlClientTest)
