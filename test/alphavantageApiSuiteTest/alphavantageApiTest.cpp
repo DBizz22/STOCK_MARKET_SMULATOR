@@ -8,7 +8,7 @@
 #define USE_TEMPLATE_ 1
 
 #ifndef USE_TEMPLATE_
-class alphavantageApiTest : public testing::Test
+class AlphavantageApiTest : public testing::Test
 {
 protected:
     static std::shared_ptr<HttpClientMock> mock;
@@ -17,10 +17,10 @@ protected:
     static stockApi::ForexData data;
     stockApi::alphavantageApiSuite::ForexApi *sample;
 
-    alphavantageApiTest()
+    AlphavantageApiTest()
     {
     }
-    ~alphavantageApiTest() override
+    ~AlphavantageApiTest() override
     {
     }
     static void SetUpTestSuite()
@@ -57,18 +57,18 @@ protected:
     }
 };
 
-std::string alphavantageApiTest::urlRequest;
-std::string alphavantageApiTest::urlResponse;
-std::shared_ptr<HttpClientMock> alphavantageApiTest::mock = nullptr;
-stockApi::ForexData alphavantageApiTest::data;
+std::string AlphavantageApiTest::urlRequest;
+std::string AlphavantageApiTest::urlResponse;
+std::shared_ptr<HttpClientMock> AlphavantageApiTest::mock = nullptr;
+stockApi::ForexData AlphavantageApiTest::data;
 
-TEST_F(alphavantageApiTest, setApiKey)
+TEST_F(AlphavantageApiTest, setApiKey)
 {
     sample->apiKey() = "Testing";
     EXPECT_EQ(sample->apiKey(), "Testing");
 }
 
-TEST_F(alphavantageApiTest, resetApiKey)
+TEST_F(AlphavantageApiTest, resetApiKey)
 {
     sample->apiKey() = "Testing1";
     EXPECT_EQ(sample->apiKey(), "Testing1");
@@ -76,13 +76,13 @@ TEST_F(alphavantageApiTest, resetApiKey)
     EXPECT_EQ(sample->apiKey(), "Testing2");
 }
 
-TEST_F(alphavantageApiTest, setRequestString)
+TEST_F(AlphavantageApiTest, setRequestString)
 {
     sample->setRequest("USD", "JPY");
     EXPECT_EQ(sample->getRequest(), urlRequest);
 }
 
-TEST_F(alphavantageApiTest, resetRequestString)
+TEST_F(AlphavantageApiTest, resetRequestString)
 {
     std::string requestString = "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=JPY&to_currency=USD&apikey=demo";
     sample->setRequest("JPY", "USD");
@@ -91,20 +91,20 @@ TEST_F(alphavantageApiTest, resetRequestString)
     EXPECT_EQ(sample->getRequest(), urlRequest);
 }
 
-TEST_F(alphavantageApiTest, sendRequestFailure)
+TEST_F(AlphavantageApiTest, sendRequestFailure)
 {
     EXPECT_CALL(*mock, sendRequest("")).Times(1).WillOnce(testing::Return(false));
     EXPECT_FALSE(sample->sendRequest());
 }
 
-TEST_F(alphavantageApiTest, sendRequestSuccess)
+TEST_F(AlphavantageApiTest, sendRequestSuccess)
 {
     EXPECT_CALL(*mock, sendRequest(urlRequest)).Times(1).WillOnce(testing::Return(true));
     sample->setRequest("USD", "JPY");
     EXPECT_TRUE(sample->sendRequest());
 }
 
-TEST_F(alphavantageApiTest, sendRequestFailureThenSuccess)
+TEST_F(AlphavantageApiTest, sendRequestFailureThenSuccess)
 {
     EXPECT_CALL(*mock, sendRequest("")).Times(1).WillOnce(testing::Return(false));
     EXPECT_CALL(*mock, sendRequest(urlRequest)).Times(1).WillOnce(testing::Return(true));
@@ -113,7 +113,7 @@ TEST_F(alphavantageApiTest, sendRequestFailureThenSuccess)
     EXPECT_TRUE(sample->sendRequest());
 }
 
-TEST_F(alphavantageApiTest, getResponse)
+TEST_F(AlphavantageApiTest, getResponse)
 {
     const std::string response1("Hello");
     const std::string response2("Hello, world!");
@@ -124,7 +124,7 @@ TEST_F(alphavantageApiTest, getResponse)
     EXPECT_EQ(sample->getResponse(), "Hello, world!");
 }
 
-TEST_F(alphavantageApiTest, getDataEmptyResponseFailure)
+TEST_F(AlphavantageApiTest, getDataEmptyResponseFailure)
 {
     std::string response;
     stockApi::ForexData dataSample;
@@ -133,7 +133,7 @@ TEST_F(alphavantageApiTest, getDataEmptyResponseFailure)
     EXPECT_TRUE(dataSample.isEmpty());
 }
 
-TEST_F(alphavantageApiTest, getDataBadResponseFailure)
+TEST_F(AlphavantageApiTest, getDataBadResponseFailure)
 {
     std::string response = "Hello";
     stockApi::ForexData dataSample;
@@ -142,7 +142,7 @@ TEST_F(alphavantageApiTest, getDataBadResponseFailure)
     EXPECT_TRUE(dataSample.isEmpty());
 }
 
-TEST_F(alphavantageApiTest, getDataGoodResponseSuccess)
+TEST_F(AlphavantageApiTest, getDataGoodResponseSuccess)
 {
     stockApi::ForexData dataSample;
     EXPECT_CALL(*mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(urlResponse));
@@ -151,7 +151,7 @@ TEST_F(alphavantageApiTest, getDataGoodResponseSuccess)
     EXPECT_EQ(dataSample, data);
 }
 
-TEST_F(alphavantageApiTest, getDataAfterGoodBadResponse)
+TEST_F(AlphavantageApiTest, getDataAfterGoodBadResponse)
 {
     std::string response = "Hello";
     stockApi::ForexData dataSample;
@@ -171,7 +171,7 @@ using stockApi::alphavantageApiSuite::ForexHistoryData;
 using stockApi::alphavantageApiSuite::StockData;
 
 template <typename T>
-class alphavantageApiTest : public testing::Test
+class AlphavantageApiTest : public testing::Test
 {
 public:
     static std::shared_ptr<HttpClientMock> mock;
@@ -180,10 +180,10 @@ public:
     static T data;
     stockApi::alphavantageApiSuite::alphavantageApi<T> *sample;
 
-    alphavantageApiTest()
+    AlphavantageApiTest()
     {
     }
-    ~alphavantageApiTest()
+    ~AlphavantageApiTest()
     {
     }
     static void SetUpTestSuite()
@@ -203,7 +203,7 @@ public:
 };
 
 template <>
-void alphavantageApiTest<StockData>::SetUpTestSuite()
+void AlphavantageApiTest<StockData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=demo";
     urlResponse = "{\n"
@@ -229,7 +229,7 @@ void alphavantageApiTest<StockData>::SetUpTestSuite()
 }
 
 template <>
-void alphavantageApiTest<ForexData>::SetUpTestSuite()
+void AlphavantageApiTest<ForexData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=JPY&apikey=demo";
     urlResponse = "{\n    \"Realtime Currency Exchange Rate\": "
@@ -252,7 +252,7 @@ void alphavantageApiTest<ForexData>::SetUpTestSuite()
 }
 
 template <>
-void alphavantageApiTest<ForexHistoryData>::SetUpTestSuite()
+void AlphavantageApiTest<ForexHistoryData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=EUR&to_symbol=USD&apikey=demo";
     urlResponse = "{"
@@ -357,7 +357,7 @@ void alphavantageApiTest<ForexHistoryData>::SetUpTestSuite()
 }
 
 template <>
-void alphavantageApiTest<CryptoHistoryData>::SetUpTestSuite()
+void AlphavantageApiTest<CryptoHistoryData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_WEEKLY&symbol=BTC&market=EUR&apikey=demo";
     urlResponse = "{\n    \"Meta Data\": "
@@ -474,22 +474,22 @@ void alphavantageApiTest<CryptoHistoryData>::SetUpTestSuite()
 }
 
 template <typename T>
-std::string alphavantageApiTest<T>::urlRequest;
+std::string AlphavantageApiTest<T>::urlRequest;
 
 template <typename T>
-std::string alphavantageApiTest<T>::urlResponse;
+std::string AlphavantageApiTest<T>::urlResponse;
 
 template <typename T>
-std::shared_ptr<HttpClientMock> alphavantageApiTest<T>::mock = nullptr;
+std::shared_ptr<HttpClientMock> AlphavantageApiTest<T>::mock = nullptr;
 
 template <typename T>
-T alphavantageApiTest<T>::data;
+T AlphavantageApiTest<T>::data;
 
 using MyTypes = ::testing::Types<StockData, ForexData, ForexHistoryData, CryptoHistoryData>;
-TYPED_TEST_SUITE(alphavantageApiTest, MyTypes);
+TYPED_TEST_SUITE(AlphavantageApiTest, MyTypes);
 
 template <typename T>
-void SetTypeRequest(alphavantageApiTest<T> *testPtr)
+void SetTypeRequest(AlphavantageApiTest<T> *testPtr)
 {
     if (stockApi::alphavantageApiSuite::alphavantageApi<StockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<StockData> *>(testPtr->sample))
         ptr->setRequest("IBM");
@@ -502,7 +502,7 @@ void SetTypeRequest(alphavantageApiTest<T> *testPtr)
 }
 
 template <typename T>
-std::string SetRequestResponse(alphavantageApiTest<T> *testPtr)
+std::string SetRequestResponse(AlphavantageApiTest<T> *testPtr)
 {
     if (stockApi::alphavantageApiSuite::alphavantageApi<StockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<StockData> *>(testPtr->sample))
     {
@@ -528,13 +528,13 @@ std::string SetRequestResponse(alphavantageApiTest<T> *testPtr)
         return "";
 }
 
-TYPED_TEST(alphavantageApiTest, setApiKey)
+TYPED_TEST(AlphavantageApiTest, SetApiKey)
 {
     this->sample->apiKey() = "Testing";
     EXPECT_EQ(this->sample->apiKey(), "Testing");
 }
 
-TYPED_TEST(alphavantageApiTest, resetApiKey)
+TYPED_TEST(AlphavantageApiTest, ResetApiKey)
 {
     this->sample->apiKey() = "Testing1";
     EXPECT_EQ(this->sample->apiKey(), "Testing1");
@@ -542,13 +542,13 @@ TYPED_TEST(alphavantageApiTest, resetApiKey)
     EXPECT_EQ(this->sample->apiKey(), "Testing2");
 }
 
-TYPED_TEST(alphavantageApiTest, setRequestString)
+TYPED_TEST(AlphavantageApiTest, SetRequestString)
 {
     SetTypeRequest(this);
     EXPECT_EQ(this->sample->getRequest(), this->urlRequest);
 }
 
-TYPED_TEST(alphavantageApiTest, resetRequestString)
+TYPED_TEST(AlphavantageApiTest, ResetRequestString)
 {
     std::string request = SetRequestResponse(this);
     EXPECT_EQ(this->sample->getRequest(), request);
@@ -556,20 +556,20 @@ TYPED_TEST(alphavantageApiTest, resetRequestString)
     EXPECT_EQ(this->sample->getRequest(), this->urlRequest);
 }
 
-TYPED_TEST(alphavantageApiTest, sendRequestFailure)
+TYPED_TEST(AlphavantageApiTest, SendRequestFailure)
 {
     EXPECT_CALL(*this->mock, sendRequest("")).Times(1).WillOnce(testing::Return(false));
     EXPECT_FALSE(this->sample->sendRequest());
 }
 
-TYPED_TEST(alphavantageApiTest, sendRequestSuccess)
+TYPED_TEST(AlphavantageApiTest, SendRequestSuccess)
 {
     EXPECT_CALL(*this->mock, sendRequest(this->urlRequest)).Times(1).WillOnce(testing::Return(true));
     SetTypeRequest(this);
     EXPECT_TRUE(this->sample->sendRequest());
 }
 
-TYPED_TEST(alphavantageApiTest, sendRequestFailureThenSuccess)
+TYPED_TEST(AlphavantageApiTest, SendRequestFailureThenSuccess)
 {
     EXPECT_CALL(*this->mock, sendRequest("")).Times(1).WillOnce(testing::Return(false));
     EXPECT_CALL(*this->mock, sendRequest(this->urlRequest)).Times(1).WillOnce(testing::Return(true));
@@ -578,7 +578,7 @@ TYPED_TEST(alphavantageApiTest, sendRequestFailureThenSuccess)
     EXPECT_TRUE(this->sample->sendRequest());
 }
 
-TYPED_TEST(alphavantageApiTest, getResponse)
+TYPED_TEST(AlphavantageApiTest, GetResponse)
 {
     const std::string response1("Hello");
     const std::string response2("Hello, world!");
@@ -589,28 +589,28 @@ TYPED_TEST(alphavantageApiTest, getResponse)
     EXPECT_EQ(this->sample->getResponse(), "Hello, world!");
 }
 
-TYPED_TEST(alphavantageApiTest, getDataAfterEmptyResponse)
+TYPED_TEST(AlphavantageApiTest, GetDataAfterEmptyResponse)
 {
     std::string response;
     EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(response));
     EXPECT_TRUE(this->sample->getData().isEmpty());
 }
 
-TYPED_TEST(alphavantageApiTest, getDataAfterBadResponse)
+TYPED_TEST(AlphavantageApiTest, GetDataAfterBadResponse)
 {
     std::string response = "Hello";
     EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(response));
     EXPECT_TRUE(this->sample->getData().isEmpty());
 }
 
-TYPED_TEST(alphavantageApiTest, getDataAfterGoodResponse)
+TYPED_TEST(AlphavantageApiTest, GetDataAfterGoodResponse)
 {
     EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(this->urlResponse));
     EXPECT_FALSE(this->sample->getData().isEmpty());
     EXPECT_EQ(this->sample->getData(), this->data);
 }
 
-TYPED_TEST(alphavantageApiTest, getDataAfterGoodBadResponse)
+TYPED_TEST(AlphavantageApiTest, GetDataAfterGoodBadResponse)
 {
     std::string response = "Hello";
     testing::InSequence seq;

@@ -2,7 +2,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 #include "curlClient.hpp"
 
-TEST_GROUP(curlClientTest)
+TEST_GROUP(CurlClientTest)
 {
     std::string request;
     CurlClient *sample;
@@ -17,30 +17,30 @@ TEST_GROUP(curlClientTest)
     }
 };
 
-IGNORE_TEST(curlClientTest, sendRequestFailure)
+IGNORE_TEST(CurlClientTest, SendRequestFailure)
 {
     bool result = sample->sendRequest("");
     CHECK(result == false);
 }
 
-IGNORE_TEST(curlClientTest, sendRequestSuccess)
+IGNORE_TEST(CurlClientTest, SendRequestSuccess)
 {
     bool result = sample->sendRequest(request);
     CHECK(result == true);
 }
 
-IGNORE_TEST(curlClientTest, getResponseEmptyString)
+IGNORE_TEST(CurlClientTest, GetResponseEmptyString)
 {
     CHECK_EQUAL(sample->getResponse(), "");
 }
 
-IGNORE_TEST(curlClientTest, getResponseString)
+IGNORE_TEST(CurlClientTest, GetResponseString)
 {
     sample->sendRequest(request);
     CHECK_EQUAL(sample->getResponse(), "200 OK");
 }
 
-IGNORE_TEST(curlClientTest, responseAfterGoodThenBadRequest)
+IGNORE_TEST(CurlClientTest, ResponseAfterGoodThenBadRequest)
 {
     sample->sendRequest(request);
     bool result = sample->sendRequest("");
