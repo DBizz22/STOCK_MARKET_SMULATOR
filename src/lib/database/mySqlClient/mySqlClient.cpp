@@ -39,8 +39,8 @@ const std::string CreateEquitiesTableQuery("CREATE TABLE IF NOT EXISTS equities 
                                            "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
                                            "`profile` INT UNSIGNED ZEROFILL NOT NULL,"
                                            "`stock` INT UNSIGNED ZEROFILL NOT NULL,"
-                                           "`quantity` INT NOT NULL,"
-                                           "`purchasePrice` DECIMAL(12, 6) NOT NULL,"
+                                           "`quantity` FLOAT NOT NULL,"
+                                           "`initialValue` DECIMAL(12, 6) NOT NULL,"
                                            "PRIMARY KEY(`ID`),"
                                            "INDEX `profile_idx` (`profile` ASC) VISIBLE,"
                                            "INDEX `stock_idx` (`stock` ASC) VISIBLE,"
@@ -139,6 +139,7 @@ std::vector<T> database::mysql::MySQLClient::multipleOutputQuery(std::string que
 
 database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) : credentials_(credentials)
 {
+    databaseReady = false;
     soci::connection_parameters parameters(soci::mysql, "db=" + credentials_.database + " user=" + credentials_.user + " password=" + credentials_.password + " reconnect=1");
     try
     {
@@ -149,6 +150,7 @@ database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) :
         sql << CreateEquitiesTableQuery;
         sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
         sql << CreateDeleteRelatedEquitiesTrigger;
+        databaseReady = true;
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -157,12 +159,14 @@ database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) :
     }
     catch (const std::exception &e)
     {
+
         std::cerr << e.what() << '\n';
     }
 }
 
 void database::mysql::MySQLClient::reset(const connectionParams &credentials)
 {
+    databaseReady = false;
     credentials_ = credentials;
     soci::connection_parameters parameters(soci::mysql, "db=" + credentials_.database + " user=" + credentials_.user + " password=" + credentials_.password + " reconnect=1");
     try
@@ -175,6 +179,7 @@ void database::mysql::MySQLClient::reset(const connectionParams &credentials)
         sql << CreateEquitiesTableQuery;
         sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
         sql << CreateDeleteRelatedEquitiesTrigger;
+        databaseReady = true;
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -191,7 +196,7 @@ bool database::mysql::MySQLClient::is_connected()
 {
     try
     {
-        return sql.is_connected();
+        return sql.is_connected() && databaseReady;
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -261,7 +266,6 @@ bool database::mysql::MySQLClient::drop(const AccountRecord &account)
 
 database::AccountRecord database::mysql::MySQLClient::getAccount(const std::string &username, const std::string &password)
 {
-    // FIXME: query
     std::string query = "SELECT * FROM accounts WHERE username = \"" + username + "\" AND password = \"" + password + "\"";
     return singleOutputQuery<AccountRecord>(query);
 }
@@ -288,7 +292,6 @@ bool database::mysql::MySQLClient::drop(const ProfileRecord &profile)
 
 std::vector<database::ProfileRecord> database::mysql::MySQLClient::getProfiles(const unsigned int &accountID)
 {
-    // FIXME: query
     std::string query = "SELECT * FROM profiles WHERE account = " + std::to_string(accountID);
     return multipleOutputQuery<ProfileRecord>(query);
 }
@@ -316,7 +319,6 @@ bool database::mysql::MySQLClient::drop(const StockRecord &stock)
 
 database::StockRecord database::mysql::MySQLClient::getStock(const std::string &symbol, const std::string &currency)
 {
-    // FIXME: query
     std::string query = "SELECT * FROM stocks WHERE symbol = \"" + symbol + "\" AND currency = \"" + currency + "\"";
     return singleOutputQuery<StockRecord>(query);
 }
@@ -343,7 +345,6 @@ bool database::mysql::MySQLClient::drop(const EquityRecord &equity)
 
 std::vector<database::EquityRecord> database::mysql::MySQLClient::getEquities(const unsigned int &profileID)
 {
-    // FIXME: query
     std::string query = "SELECT * FROM equities WHERE profile = " + std::to_string(profileID);
     return multipleOutputQuery<EquityRecord>(query);
 }

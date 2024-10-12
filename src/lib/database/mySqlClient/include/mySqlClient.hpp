@@ -21,6 +21,7 @@ namespace database
         private:
             connectionParams credentials_;
             soci::session sql;
+            bool databaseReady;
             bool inputQuery(const std::string &query);
             template <typename T>
             T singleOutputQuery(std::string query);
