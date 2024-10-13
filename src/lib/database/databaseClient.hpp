@@ -152,7 +152,7 @@ namespace database
         virtual std::vector<EquityRecord> getEquities(const unsigned int &profileID) = 0;
         virtual ~DatabaseClient() = default;
     };
-};
+}; // databaseClient Namespace
 
 namespace soci
 {
@@ -258,6 +258,6 @@ namespace soci
             v.set("quantity", p.quantity);
         }
     };
-};
+}; // soci namespace
 
 #endif

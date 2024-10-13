@@ -2,69 +2,77 @@
 #include <vector>
 #include <algorithm>
 
-const int MAX_PROFILES = 5;
-const int MAX_EQUITIES = 20;
+const char *const CreateAccountsTableQuery = "CREATE TABLE IF NOT EXISTS accounts ("
+                                             "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
+                                             "`username` VARCHAR(45) NOT NULL,"
+                                             "`password` VARCHAR(45) NOT NULL,"
+                                             "PRIMARY KEY(`ID`),"
+                                             "UNIQUE INDEX `username_UNIQUE` (`username` ASC)VISIBLE,"
+                                             "UNIQUE INDEX `password_UNIQUE` (`password` ASC)VISIBLE)";
 
-const std::string CreateAccountsTableQuery("CREATE TABLE IF NOT EXISTS accounts ("
-                                           "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
-                                           "`username` VARCHAR(45) NOT NULL,"
-                                           "`password` VARCHAR(45) NOT NULL,"
-                                           "PRIMARY KEY(`ID`),"
-                                           "UNIQUE INDEX `username_UNIQUE` (`username` ASC)VISIBLE,"
-                                           "UNIQUE INDEX `password_UNIQUE` (`password` ASC)VISIBLE)");
+const char *const CreateProfilesTableQuery = "CREATE TABLE IF NOT EXISTS profiles ("
+                                             "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
+                                             "`account` INT UNSIGNED ZEROFILL NOT NULL,"
+                                             "`name` VARCHAR(45) NOT NULL DEFAULT \"No Name\","
+                                             "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
+                                             "`initialValue` FLOAT NOT NULL DEFAULT 1000,"
+                                             "PRIMARY KEY(`ID`),"
+                                             "INDEX `account_idx` (`account` ASC)VISIBLE,"
+                                             "CONSTRAINT `account` FOREIGN KEY(`account`)"
+                                             "REFERENCES `accounts` (`ID`) "
+                                             "ON DELETE NO ACTION "
+                                             "ON UPDATE NO ACTION)";
 
-const std::string CreateProfilesTableQuery("CREATE TABLE IF NOT EXISTS profiles ("
+const char *const CreateStocksTableQuery = "CREATE TABLE IF NOT EXISTS stocks ("
                                            "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
-                                           "`account` INT UNSIGNED ZEROFILL NOT NULL,"
-                                           "`name` VARCHAR(45) NOT NULL DEFAULT \"No Name\","
+                                           "`name` VARCHAR(45) NOT NULL,"
+                                           "`symbol` VARCHAR(45) NOT NULL,"
                                            "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
-                                           "`initialValue` FLOAT NOT NULL DEFAULT 1000,"
-                                           "PRIMARY KEY(`ID`),"
-                                           "INDEX `account_idx` (`account` ASC)VISIBLE,"
-                                           "CONSTRAINT `account` FOREIGN KEY(`account`)"
-                                           "REFERENCES `accounts` (`ID`) "
-                                           "ON DELETE NO ACTION "
-                                           "ON UPDATE NO ACTION)");
+                                           "`currentPrice` DECIMAL(12, 6) NOT NULL,"
+                                           "`lastUpdate` DATE NOT NULL,"
+                                           "PRIMARY KEY(`ID`))";
 
-const std::string CreateStocksTableQuery("CREATE TABLE IF NOT EXISTS stocks ("
-                                         "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
-                                         "`name` VARCHAR(45) NOT NULL,"
-                                         "`symbol` VARCHAR(45) NOT NULL,"
-                                         "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
-                                         "`currentPrice` DECIMAL(12, 6) NOT NULL,"
-                                         "`lastUpdate` DATE NOT NULL,"
-                                         "PRIMARY KEY(`ID`))");
+const char *const CreateEquitiesTableQuery = "CREATE TABLE IF NOT EXISTS equities ("
+                                             "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
+                                             "`profile` INT UNSIGNED ZEROFILL NOT NULL,"
+                                             "`stock` INT UNSIGNED ZEROFILL NOT NULL,"
+                                             "`quantity` FLOAT NOT NULL,"
+                                             "`initialValue` DECIMAL(12, 6) NOT NULL,"
+                                             "PRIMARY KEY(`ID`),"
+                                             "INDEX `profile_idx` (`profile` ASC) VISIBLE,"
+                                             "INDEX `stock_idx` (`stock` ASC) VISIBLE,"
+                                             "CONSTRAINT `profile` FOREIGN KEY(`profile`)"
+                                             "REFERENCES `profiles` (`ID`) "
+                                             "ON DELETE NO ACTION "
+                                             "ON UPDATE NO ACTION,"
+                                             "CONSTRAINT `stock` FOREIGN KEY(`stock`)"
+                                             "REFERENCES `stocks` (`ID`)"
+                                             "ON DELETE NO ACTION "
+                                             "ON UPDATE NO ACTION)";
 
-const std::string CreateEquitiesTableQuery("CREATE TABLE IF NOT EXISTS equities ("
-                                           "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
-                                           "`profile` INT UNSIGNED ZEROFILL NOT NULL,"
-                                           "`stock` INT UNSIGNED ZEROFILL NOT NULL,"
-                                           "`quantity` FLOAT NOT NULL,"
-                                           "`initialValue` DECIMAL(12, 6) NOT NULL,"
-                                           "PRIMARY KEY(`ID`),"
-                                           "INDEX `profile_idx` (`profile` ASC) VISIBLE,"
-                                           "INDEX `stock_idx` (`stock` ASC) VISIBLE,"
-                                           "CONSTRAINT `profile` FOREIGN KEY(`profile`)"
-                                           "REFERENCES `profiles` (`ID`) "
-                                           "ON DELETE NO ACTION "
-                                           "ON UPDATE NO ACTION,"
-                                           "CONSTRAINT `stock` FOREIGN KEY(`stock`)"
-                                           "REFERENCES `stocks` (`ID`)"
-                                           "ON DELETE NO ACTION "
-                                           "ON UPDATE NO ACTION)");
+const char *const CreateDeleteRelatedProfilesAndEquitiesTrigger = "CREATE TRIGGER IF NOT EXISTS `DeleteRelatedProfilesAndEquities` "
+                                                                  "BEFORE DELETE ON `accounts` FOR EACH ROW BEGIN "
+                                                                  "DELETE FROM equities "
+                                                                  "WHERE profile = ANY(SELECT account "
+                                                                  "FROM profiles WHERE account = OLD.ID); "
+                                                                  "DELETE FROM profiles WHERE account = OLD.ID; "
+                                                                  "END";
 
-const std::string CreateDeleteRelatedProfilesAndEquitiesTrigger("CREATE TRIGGER IF NOT EXISTS `DeleteRelatedProfilesAndEquities` "
-                                                                "BEFORE DELETE ON `accounts` FOR EACH ROW BEGIN "
-                                                                "DELETE FROM equities "
-                                                                "WHERE profile = ANY(SELECT account "
-                                                                "FROM profiles WHERE account = OLD.ID); "
-                                                                "DELETE FROM profiles WHERE account = OLD.ID; "
-                                                                "END");
+const char *const CreateDeleteRelatedEquitiesTrigger = "CREATE TRIGGER IF NOT EXISTS `DeleteRelatedEquities` "
+                                                       "BEFORE DELETE ON `profiles` FOR EACH ROW BEGIN "
+                                                       "DELETE FROM equities WHERE profile = OLD.ID; "
+                                                       "END";
 
-const std::string CreateDeleteRelatedEquitiesTrigger("CREATE TRIGGER IF NOT EXISTS `DeleteRelatedEquities` "
-                                                     "BEFORE DELETE ON `profiles` FOR EACH ROW BEGIN "
-                                                     "DELETE FROM equities WHERE profile = OLD.ID; "
-                                                     "END");
+void database::mysql::MySQLClient::setupConnection()
+{
+    sql.open(connection);
+    sql << CreateAccountsTableQuery;
+    sql << CreateProfilesTableQuery;
+    sql << CreateStocksTableQuery;
+    sql << CreateEquitiesTableQuery;
+    sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
+    sql << CreateDeleteRelatedEquitiesTrigger;
+}
 
 bool database::mysql::MySQLClient::inputQuery(const std::string &query)
 {
@@ -87,7 +95,7 @@ bool database::mysql::MySQLClient::inputQuery(const std::string &query)
 }
 
 template <typename T>
-T database::mysql::MySQLClient::singleOutputQuery(std::string query)
+T database::mysql::MySQLClient::singleOutputQuery(const std::string &query)
 {
     T record;
     soci::indicator ind;
@@ -112,12 +120,9 @@ T database::mysql::MySQLClient::singleOutputQuery(std::string query)
 }
 
 template <typename T>
-std::vector<T> database::mysql::MySQLClient::multipleOutputQuery(std::string query)
+std::vector<T> database::mysql::MySQLClient::multipleOutputQuery(const std::string &query)
 {
     std::vector<T> records;
-
-    /*for (auto &row : rs)
-        records.push_back(row);*/
     try
     {
         soci::rowset<T> rs = sql.prepare << query;
@@ -137,19 +142,13 @@ std::vector<T> database::mysql::MySQLClient::multipleOutputQuery(std::string que
     return records;
 }
 
-database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) : credentials_(credentials)
+database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials)
 {
     databaseReady = false;
-    soci::connection_parameters parameters(soci::mysql, "db=" + credentials_.database + " user=" + credentials_.user + " password=" + credentials_.password + " reconnect=1");
+    connection = soci::connection_parameters(soci::mysql, "db=" + credentials.database + " user=" + credentials.user + " password=" + credentials.password + " reconnect=1");
     try
     {
-        sql.open(parameters);
-        sql << CreateAccountsTableQuery;
-        sql << CreateProfilesTableQuery;
-        sql << CreateStocksTableQuery;
-        sql << CreateEquitiesTableQuery;
-        sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
-        sql << CreateDeleteRelatedEquitiesTrigger;
+        setupConnection();
         databaseReady = true;
     }
     catch (soci::mysql_soci_error const &e)
@@ -167,18 +166,11 @@ database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) :
 void database::mysql::MySQLClient::reset(const connectionParams &credentials)
 {
     databaseReady = false;
-    credentials_ = credentials;
-    soci::connection_parameters parameters(soci::mysql, "db=" + credentials_.database + " user=" + credentials_.user + " password=" + credentials_.password + " reconnect=1");
+    connection = soci::connection_parameters(soci::mysql, "db=" + credentials.database + " user=" + credentials.user + " password=" + credentials.password + " reconnect=1");
     try
     {
         sql.close();
-        sql.open(parameters);
-        sql << CreateAccountsTableQuery;
-        sql << CreateProfilesTableQuery;
-        sql << CreateStocksTableQuery;
-        sql << CreateEquitiesTableQuery;
-        sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
-        sql << CreateDeleteRelatedEquitiesTrigger;
+        setupConnection();
         databaseReady = true;
     }
     catch (soci::mysql_soci_error const &e)

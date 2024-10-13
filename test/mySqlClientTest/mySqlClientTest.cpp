@@ -104,55 +104,55 @@ TEST_F(MySqlClientTest, Reconnect)
 
 TEST_F(MySqlClientTest, InsertUniqueAccountRecord)
 {
-    database::AccountRecord account = {0, "username", "password"};
-    EXPECT_TRUE(mySqlSample->insert(account));
+    database::AccountRecord uniqueAccount = {0, "username", "password"};
+    EXPECT_TRUE(mySqlSample->insert(uniqueAccount));
 }
 
 TEST_F(MySqlClientTest, GetInvalidAccountRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("invalid_username", "invalid_password");
-    EXPECT_FALSE(account.ID > 0);
+    database::AccountRecord invalidAccount = mySqlSample->getAccount("invalid_username", "invalid_password");
+    EXPECT_FALSE(invalidAccount.ID > 0);
 }
 
 TEST_F(MySqlClientTest, GetValidAccountRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("username", "password");
-    EXPECT_TRUE(account.ID > 0);
+    database::AccountRecord validAccount = mySqlSample->getAccount("username", "password");
+    EXPECT_TRUE(validAccount.ID > 0);
 }
 
 TEST_F(MySqlClientTest, UpdateInvalidAccountRecord)
 {
-    database::AccountRecord account = {0, "username", "password"};
-    EXPECT_TRUE(mySqlSample->update(account));
+    database::AccountRecord invalidAccount = {0, "username", "password"};
+    EXPECT_TRUE(mySqlSample->update(invalidAccount));
 }
 
 TEST_F(MySqlClientTest, UpdateValidAccountRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("username", "password");
-    account.username = "new_username";
-    EXPECT_TRUE(mySqlSample->update(account));
+    database::AccountRecord validAccount = mySqlSample->getAccount("username", "password");
+    validAccount.username = "new_username";
+    EXPECT_TRUE(mySqlSample->update(validAccount));
     database::AccountRecord modifiedAccount = mySqlSample->getAccount("new_username", "password");
-    EXPECT_TRUE(account == modifiedAccount);
+    EXPECT_TRUE(validAccount == modifiedAccount);
 }
 
 TEST_F(MySqlClientTest, InsertProfileRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    database::ProfileRecord profile = {0, account.ID, "Profile1", "USD", 1000};
-    EXPECT_TRUE(mySqlSample->insert(profile));
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    database::ProfileRecord validProfile = {0, validAccount.ID, "Profile1", "USD", 1000};
+    EXPECT_TRUE(mySqlSample->insert(validProfile));
 }
 
 TEST_F(MySqlClientTest, GetInvalidProfileRecords)
 {
-    database::AccountRecord account = {0, "invalid_username", "invalid_password"};
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = {0, "invalid_username", "invalid_password"};
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     EXPECT_TRUE(profiles.empty());
 }
 
 TEST_F(MySqlClientTest, GetValidProfileRecords)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     EXPECT_FALSE(profiles.empty());
 }
 
@@ -164,11 +164,11 @@ TEST_F(MySqlClientTest, UpdateInvalidProfileRecord)
 
 TEST_F(MySqlClientTest, UpdateValidProfileRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     profiles[0].name = "new_profile_name";
     EXPECT_TRUE(mySqlSample->update(profiles[0]));
-    std::vector<database::ProfileRecord> modifiedProfiles = mySqlSample->getProfiles(account.ID);
+    std::vector<database::ProfileRecord> modifiedProfiles = mySqlSample->getProfiles(validAccount.ID);
     EXPECT_TRUE(profiles[0] == modifiedProfiles[0]);
 }
 
@@ -180,14 +180,14 @@ TEST_F(MySqlClientTest, InsertStockRecord)
 
 TEST_F(MySqlClientTest, GetInvalidStockRecord)
 {
-    database::StockRecord stock = mySqlSample->getStock("invalid_stock", "invalid_currency");
-    EXPECT_TRUE(stock.isEmpty());
+    database::StockRecord invalidStock = mySqlSample->getStock("invalid_stock", "invalid_currency");
+    EXPECT_TRUE(invalidStock.isEmpty());
 }
 
 TEST_F(MySqlClientTest, GetValidStockRecord)
 {
-    database::StockRecord stock = mySqlSample->getStock("STC", "USD");
-    EXPECT_FALSE(stock.isEmpty());
+    database::StockRecord validStock = mySqlSample->getStock("STC", "USD");
+    EXPECT_FALSE(validStock.isEmpty());
 }
 
 TEST_F(MySqlClientTest, UpdateInvalidStockRecord)
@@ -198,11 +198,11 @@ TEST_F(MySqlClientTest, UpdateInvalidStockRecord)
 
 TEST_F(MySqlClientTest, UpdateValidStockRecord)
 {
-    database::StockRecord stock = mySqlSample->getStock("STC", "USD");
-    stock.currentPrice = 100;
-    EXPECT_TRUE(mySqlSample->update(stock));
+    database::StockRecord validStock = mySqlSample->getStock("STC", "USD");
+    validStock.currentPrice = 100;
+    EXPECT_TRUE(mySqlSample->update(validStock));
     database::StockRecord modifiedStock = mySqlSample->getStock("STC", "USD");
-    EXPECT_TRUE(stock == modifiedStock);
+    EXPECT_TRUE(validStock == modifiedStock);
 }
 
 TEST_F(MySqlClientTest, InsertInvalidEquitiesRecord)
@@ -213,8 +213,8 @@ TEST_F(MySqlClientTest, InsertInvalidEquitiesRecord)
 
 TEST_F(MySqlClientTest, InsertValidEquitiesRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     database::StockRecord stock = mySqlSample->getStock("STC", "USD");
     database::EquityRecord equity = {0, profiles[0].ID, stock.ID, 100, 20};
     EXPECT_TRUE(mySqlSample->insert(equity));
@@ -229,8 +229,8 @@ TEST_F(MySqlClientTest, GetInvalidEquitiesRecords)
 
 TEST_F(MySqlClientTest, GetValidEquitiesRecords)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     std::vector<database::EquityRecord> equities = mySqlSample->getEquities(profiles[0].ID);
     EXPECT_FALSE(equities.empty());
 }
@@ -243,8 +243,8 @@ TEST_F(MySqlClientTest, UpdateInvalidEquitiesRecord)
 
 TEST_F(MySqlClientTest, UpdateValidEquitiesRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     std::vector<database::EquityRecord> equities = mySqlSample->getEquities(profiles[0].ID);
     equities[0].quantity = 50;
     EXPECT_TRUE(mySqlSample->update(equities[0]));
@@ -260,8 +260,8 @@ TEST_F(MySqlClientTest, DeleteInvalidEquitiesRecord)
 
 TEST_F(MySqlClientTest, DeleteValidEquitiesRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     std::vector<database::EquityRecord> equities = mySqlSample->getEquities(profiles[0].ID);
     EXPECT_TRUE(mySqlSample->drop(equities[0]));
     std::vector<database::EquityRecord> deletedEquities = mySqlSample->getEquities(profiles[0].ID);
@@ -291,42 +291,42 @@ TEST_F(MySqlClientTest, DeleteInvalidProfileRecord)
 
 TEST_F(MySqlClientTest, DeleteValidProfileRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     EXPECT_TRUE(mySqlSample->drop(profiles[0]));
-    std::vector<database::ProfileRecord> deletedProfiles = mySqlSample->getProfiles(account.ID);
+    std::vector<database::ProfileRecord> deletedProfiles = mySqlSample->getProfiles(validAccount.ID);
     EXPECT_TRUE(deletedProfiles.empty());
 }
 
 TEST_F(MySqlClientTest, DeleteInvalidAccountRecord)
 {
-    database::AccountRecord account = {0, "invalid_username", "invalid_password"};
-    EXPECT_TRUE(mySqlSample->drop(account));
+    database::AccountRecord invalidAccount = {0, "invalid_username", "invalid_password"};
+    EXPECT_TRUE(mySqlSample->drop(invalidAccount));
 }
 
 TEST_F(MySqlClientTest, DeleteValidAccountRecord)
 {
-    database::AccountRecord account = mySqlSample->getAccount("new_username", "password");
-    EXPECT_TRUE(mySqlSample->drop(account));
-    account = mySqlSample->getAccount("new_username", "password");
-    EXPECT_TRUE(account.isEmpty());
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    EXPECT_TRUE(mySqlSample->drop(validAccount));
+    validAccount = mySqlSample->getAccount("new_username", "password");
+    EXPECT_TRUE(validAccount.isEmpty());
 }
 
 TEST_F(MySqlClientTest, InsertDuplicateAccountUsernameRecordFailure)
 {
-    database::AccountRecord account = {0, "Duplicate username", "Unique password 1"};
-    mySqlSample->insert(account);
-    account.password = "Unique password 2";
-    EXPECT_FALSE(mySqlSample->insert(account));
+    database::AccountRecord duplicateAccount = {0, "Duplicate username", "Unique password 1"};
+    mySqlSample->insert(duplicateAccount);
+    duplicateAccount.password = "Unique password 2";
+    EXPECT_FALSE(mySqlSample->insert(duplicateAccount));
     EXPECT_TRUE(mySqlSample->drop(mySqlSample->getAccount("Duplicate username", "Unique password 1")));
 }
 
 TEST_F(MySqlClientTest, InsertDuplicateAccountPasswordRecordFailure)
 {
-    database::AccountRecord account = {0, "Unique username 1", "Duplicate password"};
-    mySqlSample->insert(account);
-    account.username = "Unique username 2";
-    EXPECT_FALSE(mySqlSample->insert(account));
+    database::AccountRecord duplicateAccount = {0, "Unique username 1", "Duplicate password"};
+    mySqlSample->insert(duplicateAccount);
+    duplicateAccount.username = "Unique username 2";
+    EXPECT_FALSE(mySqlSample->insert(duplicateAccount));
     EXPECT_TRUE(mySqlSample->drop(mySqlSample->getAccount("Unique username 1", "Duplicate password")));
 }
 

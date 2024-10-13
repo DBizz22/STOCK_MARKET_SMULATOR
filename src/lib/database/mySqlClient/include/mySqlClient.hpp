@@ -19,14 +19,15 @@ namespace database
         class MySQLClient : public DatabaseClient
         {
         private:
-            connectionParams credentials_;
+            soci::connection_parameters connection;
             soci::session sql;
             bool databaseReady;
+            void setupConnection();
             bool inputQuery(const std::string &query);
             template <typename T>
-            T singleOutputQuery(std::string query);
+            T singleOutputQuery(const std::string &query);
             template <typename T>
-            std::vector<T> multipleOutputQuery(std::string query);
+            std::vector<T> multipleOutputQuery(const std::string &query);
 
         public:
             explicit MySQLClient(const connectionParams &credentials);
@@ -56,7 +57,7 @@ namespace database
             std::vector<EquityRecord> getEquities(const unsigned int &profileID) override;
             ~MySQLClient() = default;
         };
-    };
+    }; // MYsqlClient
 }; // Mysql namespace
 
 #endif

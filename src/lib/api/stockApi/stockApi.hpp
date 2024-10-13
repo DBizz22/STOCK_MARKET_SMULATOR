@@ -8,42 +8,14 @@
 #include "boost/json.hpp"
 #include "httpClient.hpp"
 
-#define USE_TEMPLATE_ 1
-
 namespace stockApi
 {
-#ifndef USE_TEMPLATE_
-    class Api
+    class ApiBase
     {
-    private:
-        std::string apiKey_;
-        std::string request_;
-        std::shared_ptr<HttpClient> client_;
-
-    protected:
-        virtual void processResponse() = 0;
-
-    public:
-        explicit Api(const std::string &key, const std::shared_ptr<HttpClient> &client);
-        Api(const Api &copy) = delete;
-        Api(Api &&copy) = delete;
-        Api &operator=(const Api &copy) = delete;
-        Api &operator=(Api &&copy) = delete;
-        const std::string &apiKey() const;
-        std::string &apiKey();
-        const std::string &getRequest() const;
-        std::string &getRequest();
-        virtual bool sendRequest();
-        const std::string &getResponse() const;
-        // virtual void processResponse() = 0;
-        virtual ~Api() = default;
     };
-#endif
 
-#ifdef USE_TEMPLATE_
-    // TODO: implement base class ptr
     template <typename T>
-    class Api
+    class Api : public ApiBase
     {
     private:
         bool dataReady_ = false;
@@ -139,8 +111,6 @@ namespace stockApi
         }
         return data_;
     }
-
-#endif
 
 } // namespace stockApi
 

@@ -1,3 +1,3 @@
 add_library(alphavantageStatic STATIC alphavantage.cpp)
 target_include_directories(alphavantageStatic PUBLIC include)
-target_link_libraries(alphavantageStatic stockApi httpClientInterface)
+target_link_libraries(alphavantageStatic stockApiInterface)

@@ -1,3 +1,5 @@
-add_library(stockApi STATIC stockApi.cpp)
-target_include_directories(stockApi PUBLIC include)
-target_link_libraries(stockApi httpClientInterface Boost::json)
+add_library(stockApiInterface INTERFACE stockApi.hpp)
+target_include_directories(httpClientInterface INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+)
+target_link_libraries(stockApiInterface INTERFACE httpClientInterface Boost::json)
