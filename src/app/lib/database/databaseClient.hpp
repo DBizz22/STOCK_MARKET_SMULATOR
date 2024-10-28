@@ -40,7 +40,8 @@ namespace database
         unsigned int accountID{0};
         std::string name;
         std::string currency;
-        double initialValue;
+        double initialValue{0};
+        double balance{0};
         void reset()
         {
             ID = 0;
@@ -48,10 +49,11 @@ namespace database
             name.clear();
             currency.clear();
             initialValue = 0.0;
+            balance = 0.0;
         }
         bool operator==(const ProfileRecord &other) const
         {
-            return ID == other.ID && accountID == other.accountID && name == other.name && currency == other.currency && initialValue == other.initialValue;
+            return ID == other.ID && accountID == other.accountID && name == other.name && currency == other.currency && initialValue == other.initialValue && balance == other.balance;
         }
         bool operator!=(const ProfileRecord &other) const
         {
@@ -59,14 +61,13 @@ namespace database
         }
         bool isEmpty() const
         {
-            return ID == 0 && accountID == 0 && name.empty() && currency.empty() && initialValue == 0.0;
+            return ID == 0 && accountID == 0 && name.empty() && currency.empty() && initialValue == 0.0 && balance == 0;
         }
     };
 
     struct StockRecord
     {
         unsigned int ID{0};
-        std::string name;
         std::string symbol;
         std::string currency;
         double currentPrice{0};
@@ -74,7 +75,6 @@ namespace database
         void reset()
         {
             ID = 0;
-            name.clear();
             symbol.clear();
             currency.clear();
             currentPrice = 0.0;
@@ -82,7 +82,7 @@ namespace database
         }
         bool operator==(const StockRecord &other) const
         {
-            return ID == other.ID && name == other.name && symbol == other.symbol && currency == other.currency && currentPrice == other.currentPrice && lastUpdate == other.lastUpdate;
+            return ID == other.ID && symbol == other.symbol && currency == other.currency && currentPrice == other.currentPrice && lastUpdate == other.lastUpdate;
         }
         bool operator!=(const StockRecord &other) const
         {
@@ -90,7 +90,7 @@ namespace database
         }
         bool isEmpty() const
         {
-            return ID == 0 && name.empty() && symbol.empty() && currency.empty() && currentPrice == 0.0 && lastUpdate.empty();
+            return ID == 0 && symbol.empty() && currency.empty() && currentPrice == 0.0 && lastUpdate.empty();
         }
     };
 
@@ -140,15 +140,18 @@ namespace database
         virtual AccountRecord getAccount(const std::string &username, const std::string &password) = 0;
         virtual bool insert(const ProfileRecord &profile) = 0;
         virtual bool update(const ProfileRecord &profile) = 0;
-        virtual bool drop(const ProfileRecord &profileID) = 0;
+        virtual bool drop(const ProfileRecord &profile) = 0;
+        virtual ProfileRecord getProfile(const unsigned int &profileID) = 0;
         virtual std::vector<ProfileRecord> getProfiles(const unsigned int &accountID) = 0;
         virtual bool insert(const StockRecord &stock) = 0;
         virtual bool update(const StockRecord &stock) = 0;
-        virtual bool drop(const StockRecord &stockID) = 0;
+        virtual bool drop(const StockRecord &stock) = 0;
         virtual StockRecord getStock(const std::string &symbol, const std::string &currency) = 0;
+        virtual StockRecord getStock(const unsigned int &stockID) = 0;
         virtual bool insert(const EquityRecord &equity) = 0;
         virtual bool update(const EquityRecord &equity) = 0;
-        virtual bool drop(const EquityRecord &equityID) = 0;
+        virtual bool drop(const EquityRecord &equity) = 0;
+        virtual EquityRecord getEquity(const unsigned int &equityID) = 0;
         virtual std::vector<EquityRecord> getEquities(const unsigned int &profileID) = 0;
         virtual ~DatabaseClient() = default;
     };
@@ -188,6 +191,7 @@ namespace soci
             p.name = v.get<std::string>("name", "");
             p.currency = v.get<std::string>("currency", "");
             p.initialValue = v.get<double>("initialValue", 0);
+            p.balance = v.get<double>("balance", 0);
         }
 
         static void to_base(const database::ProfileRecord &p, values &v, indicator &ind)
@@ -197,6 +201,7 @@ namespace soci
             v.set("name", p.name);
             v.set("currency", p.currency);
             v.set("initialValue", p.initialValue);
+            v.set("balance", p.balance);
         }
     };
 
@@ -208,7 +213,7 @@ namespace soci
         static void from_base(values const &v, indicator /* ind */, database::StockRecord &p)
         {
             p.ID = v.get<unsigned int>("ID", 0);
-            p.name = v.get<std::string>("name", "");
+            // p.name = v.get<std::string>("name", "");
             p.symbol = v.get<std::string>("symbol", "");
             p.currency = v.get<std::string>("currency", "");
             p.currentPrice = v.get<double>("currentPrice", 0);
@@ -222,7 +227,6 @@ namespace soci
         static void to_base(const database::StockRecord &p, values &v, indicator &ind)
         {
             v.set("ID", p.ID);
-            v.set("name", p.name);
             v.set("symbol", p.symbol);
             v.set("currency", p.currency);
             v.set("currentPrice", p.currentPrice);

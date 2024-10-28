@@ -46,14 +46,17 @@ namespace database
             bool insert(const ProfileRecord &profile) override;
             bool update(const ProfileRecord &profile) override;
             bool drop(const ProfileRecord &profileID) override;
+            ProfileRecord getProfile(const unsigned int &profileID) override;
             std::vector<ProfileRecord> getProfiles(const unsigned int &accountID) override;
             bool insert(const StockRecord &stock) override;
             bool update(const StockRecord &stock) override;
             bool drop(const StockRecord &stockID) override;
             StockRecord getStock(const std::string &symbol, const std::string &currency) override;
+            StockRecord getStock(const unsigned int &stockID) override;
             bool insert(const EquityRecord &equity) override;
             bool update(const EquityRecord &equity) override;
             bool drop(const EquityRecord &equityID) override;
+            EquityRecord getEquity(const unsigned int &equityID) override;
             std::vector<EquityRecord> getEquities(const unsigned int &profileID) override;
             ~MySQLClient() = default;
         };

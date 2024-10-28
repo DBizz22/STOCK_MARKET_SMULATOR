@@ -16,6 +16,7 @@ const char *const CreateProfilesTableQuery = "CREATE TABLE IF NOT EXISTS profile
                                              "`name` VARCHAR(45) NOT NULL DEFAULT \"No Name\","
                                              "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
                                              "`initialValue` FLOAT NOT NULL DEFAULT 1000,"
+                                             "`balance` FLOAT NOT NULL,"
                                              "PRIMARY KEY(`ID`),"
                                              "INDEX `account_idx` (`account` ASC)VISIBLE,"
                                              "CONSTRAINT `account` FOREIGN KEY(`account`)"
@@ -25,7 +26,6 @@ const char *const CreateProfilesTableQuery = "CREATE TABLE IF NOT EXISTS profile
 
 const char *const CreateStocksTableQuery = "CREATE TABLE IF NOT EXISTS stocks ("
                                            "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
-                                           "`name` VARCHAR(45) NOT NULL,"
                                            "`symbol` VARCHAR(45) NOT NULL,"
                                            "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
                                            "`currentPrice` DECIMAL(12, 6) NOT NULL,"
@@ -264,14 +264,14 @@ database::AccountRecord database::mysql::MySQLClient::getAccount(const std::stri
 
 bool database::mysql::MySQLClient::insert(const ProfileRecord &profile)
 {
-    std::string query = "INSERT INTO profiles(account, name, currency, initialValue)";
-    query += " VALUES(" + std::to_string(profile.accountID) + ", \"" + profile.name + "\", \"" + profile.currency + "\", " + std::to_string(profile.initialValue) + ")";
+    std::string query = "INSERT INTO profiles(account, name, currency, initialValue, balance)";
+    query += " VALUES(" + std::to_string(profile.accountID) + ", \"" + profile.name + "\", \"" + profile.currency + "\", " + std::to_string(profile.initialValue) + ", " + std::to_string(profile.balance) + ")";
     return inputQuery(query);
 }
 
 bool database::mysql::MySQLClient::update(const ProfileRecord &profile)
 {
-    std::string query = "UPDATE profiles SET name = \"" + profile.name + "\" ";
+    std::string query = "UPDATE profiles SET name = \"" + profile.name + "\", balance = " + std::to_string(profile.balance);
     query += " WHERE account = \"" + std::to_string(profile.accountID) + "\"";
     return inputQuery(query);
 }
@@ -280,6 +280,11 @@ bool database::mysql::MySQLClient::drop(const ProfileRecord &profile)
 {
     std::string query = "DELETE FROM profiles WHERE ID = " + std::to_string(profile.ID);
     return inputQuery(query);
+}
+database::ProfileRecord database::mysql::MySQLClient::getProfile(const unsigned int &profileID)
+{
+    std::string query = "SELECT * FROM profiles WHERE ID = " + std::to_string(profileID);
+    return singleOutputQuery<ProfileRecord>(query);
 }
 
 std::vector<database::ProfileRecord> database::mysql::MySQLClient::getProfiles(const unsigned int &accountID)
@@ -290,14 +295,14 @@ std::vector<database::ProfileRecord> database::mysql::MySQLClient::getProfiles(c
 
 bool database::mysql::MySQLClient::insert(const StockRecord &stock)
 {
-    std::string query = "INSERT INTO stocks(name, symbol, currency, currentPrice, lastUpdate)";
-    query += " VALUES(\"" + stock.name + "\", \"" + stock.symbol + "\", \"" + stock.currency + "\", " + std::to_string(stock.currentPrice) + ", \"" + stock.lastUpdate + "\")";
+    std::string query = "INSERT INTO stocks(symbol, currency, currentPrice, lastUpdate)";
+    query += " VALUES(\"" + stock.symbol + "\", \"" + stock.currency + "\", " + std::to_string(stock.currentPrice) + ", \"" + stock.lastUpdate + "\")";
     return inputQuery(query);
 }
 
 bool database::mysql::MySQLClient::update(const StockRecord &stock)
 {
-    std::string query = "UPDATE stocks SET name = \"" + stock.name + "\", symbol = \"" + stock.symbol + "\", ";
+    std::string query = "UPDATE stocks SET symbol = \"" + stock.symbol + "\", ";
     query += "currency = \"" + stock.currency + "\", currentPrice = " + std::to_string(stock.currentPrice) + ", lastUpdate = \"" + stock.lastUpdate + "\" ";
     query += " WHERE ID = " + std::to_string(stock.ID);
     return inputQuery(query);
@@ -312,6 +317,12 @@ bool database::mysql::MySQLClient::drop(const StockRecord &stock)
 database::StockRecord database::mysql::MySQLClient::getStock(const std::string &symbol, const std::string &currency)
 {
     std::string query = "SELECT * FROM stocks WHERE symbol = \"" + symbol + "\" AND currency = \"" + currency + "\"";
+    return singleOutputQuery<StockRecord>(query);
+}
+
+database::StockRecord database::mysql::MySQLClient::getStock(const unsigned int &stockID)
+{
+    std::string query = "SELECT * FROM stocks WHERE ID = " + std::to_string(stockID);
     return singleOutputQuery<StockRecord>(query);
 }
 
@@ -333,6 +344,12 @@ bool database::mysql::MySQLClient::drop(const EquityRecord &equity)
 {
     std::string query = "DELETE FROM equities WHERE ID = " + std::to_string(equity.ID);
     return inputQuery(query);
+}
+
+database::EquityRecord database::mysql::MySQLClient::getEquity(const unsigned int &equityID)
+{
+    std::string query = "SELECT * FROM equities WHERE ID = " + std::to_string(equityID);
+    return singleOutputQuery<EquityRecord>(query);
 }
 
 std::vector<database::EquityRecord> database::mysql::MySQLClient::getEquities(const unsigned int &profileID)
