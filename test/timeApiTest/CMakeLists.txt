@@ -1,0 +1,3 @@
+add_executable(timeApiTest timeApiTest.cpp)
+target_link_libraries(timeApiTest PRIVATE timeApiSTATIC httpClientMock gtest_main gmock_main)
+gtest_discover_tests(timeApiTest)
