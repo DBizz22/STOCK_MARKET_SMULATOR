@@ -1,0 +1,3 @@
+add_library(timeApiSTATIC STATIC timeApi.cpp)
+target_include_directories(timeApiSTATIC PUBLIC include)
+target_link_libraries(timeApiSTATIC httpClientInterface Boost::json)
