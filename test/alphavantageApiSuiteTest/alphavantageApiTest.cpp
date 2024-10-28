@@ -5,10 +5,10 @@
 #include "httpClientMock.cpp"
 #include "alphavantage.hpp"
 
-using stockApi::alphavantageApiSuite::CryptoHistoryData;
-using stockApi::alphavantageApiSuite::ForexData;
-using stockApi::alphavantageApiSuite::ForexHistoryData;
-using stockApi::alphavantageApiSuite::StockData;
+using stockApi::alphavantageApiSuite::SuiteCryptoHistoryData;
+using stockApi::alphavantageApiSuite::SuiteForexData;
+using stockApi::alphavantageApiSuite::SuiteForexHistoryData;
+using stockApi::alphavantageApiSuite::SuiteStockData;
 
 template <typename T>
 class AlphavantageApiTest : public testing::Test
@@ -17,7 +17,7 @@ public:
     static std::shared_ptr<HttpClientMock> mock;
     static std::string urlRequest;
     static std::string urlResponse;
-    static T data;
+    static T alphavantageData;
     stockApi::alphavantageApiSuite::alphavantageApi<T> *sample;
 
     AlphavantageApiTest()
@@ -43,7 +43,7 @@ public:
 };
 
 template <>
-void AlphavantageApiTest<StockData>::SetUpTestSuite()
+void AlphavantageApiTest<SuiteStockData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=demo";
     urlResponse = "{\n"
@@ -60,16 +60,16 @@ void AlphavantageApiTest<StockData>::SetUpTestSuite()
                   "\"10. change percent\" : \"0.9944%\"\n"
                   "}\n"
                   "\n}";
-    data.header = "Global Quote";
-    data.timeZone = "UTC";
-    data.timestamp = "2024-09-26";
-    data.symbol = "IBM";
-    data.price = 223.43;
+    alphavantageData.data.header = "Global Quote";
+    alphavantageData.data.timeZone = "UTC";
+    alphavantageData.data.timestamp = "2024-09-26";
+    alphavantageData.data.symbol = "IBM";
+    alphavantageData.data.price = 223.43;
     mock = std::make_shared<HttpClientMock>();
 }
 
 template <>
-void AlphavantageApiTest<ForexData>::SetUpTestSuite()
+void AlphavantageApiTest<SuiteForexData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=JPY&apikey=demo";
     urlResponse = "{\n    \"Realtime Currency Exchange Rate\": "
@@ -82,17 +82,17 @@ void AlphavantageApiTest<ForexData>::SetUpTestSuite()
                   "\"7. Time Zone\": \"UTC\",\n        "
                   "\"8. Bid Price\": \"143.44040000\",\n        "
                   "\"9. Ask Price\": \"143.44400000\"\n    }\n}";
-    data.fromCurrency = "USD";
-    data.toCurrency = "JPY";
-    data.header = "Realtime Currency Exchange Rate";
-    data.timeZone = "UTC";
-    data.timestamp = "2024-09-24 18:10:33";
-    data.price = 143.44300000;
+    alphavantageData.data.fromCurrency = "USD";
+    alphavantageData.data.toCurrency = "JPY";
+    alphavantageData.data.header = "Realtime Currency Exchange Rate";
+    alphavantageData.data.timeZone = "UTC";
+    alphavantageData.data.timestamp = "2024-09-24 18:10:33";
+    alphavantageData.data.price = 143.44300000;
     mock = std::make_shared<HttpClientMock>();
 }
 
 template <>
-void AlphavantageApiTest<ForexHistoryData>::SetUpTestSuite()
+void AlphavantageApiTest<SuiteForexHistoryData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=EUR&to_symbol=USD&apikey=demo";
     urlResponse = "{"
@@ -176,28 +176,28 @@ void AlphavantageApiTest<ForexHistoryData>::SetUpTestSuite()
                   "\"3. low\" : \"1.06677\","
                   "\"4. close\" : \"1.07353\""
                   " }}}";
-    data.header = "Forex Weekly Prices (open, high, low, close)";
-    data.timeZone = "UTC";
-    data.timestamp = "2024-09-13 21:05:00";
-    data.fromCurrency = "EUR";
-    data.toCurrency = "USD";
-    data.datePrices["2024-09-13"] = 1.10737;
-    data.datePrices["2024-09-08"] = 1.10872;
-    data.datePrices["2024-09-01"] = 1.10448;
-    data.datePrices["2024-08-25"] = 1.11879;
-    data.datePrices["2024-08-18"] = 1.1025;
-    data.datePrices["2024-08-11"] = 1.09138;
-    data.datePrices["2024-08-04"] = 1.09108;
-    data.datePrices["2024-07-28"] = 1.08538;
-    data.datePrices["2024-07-21"] = 1.08992;
-    data.datePrices["2024-07-14"] = 1.08855;
-    data.datePrices["2024-07-07"] = 1.08260;
-    data.datePrices["2024-06-30"] = 1.07353;
+    alphavantageData.data.header = "Forex Weekly Prices (open, high, low, close)";
+    alphavantageData.data.timeZone = "UTC";
+    alphavantageData.data.timestamp = "2024-09-13 21:05:00";
+    alphavantageData.data.fromCurrency = "EUR";
+    alphavantageData.data.toCurrency = "USD";
+    alphavantageData.data.datePrices["2024-09-13"] = 1.10737;
+    alphavantageData.data.datePrices["2024-09-08"] = 1.10872;
+    alphavantageData.data.datePrices["2024-09-01"] = 1.10448;
+    alphavantageData.data.datePrices["2024-08-25"] = 1.11879;
+    alphavantageData.data.datePrices["2024-08-18"] = 1.1025;
+    alphavantageData.data.datePrices["2024-08-11"] = 1.09138;
+    alphavantageData.data.datePrices["2024-08-04"] = 1.09108;
+    alphavantageData.data.datePrices["2024-07-28"] = 1.08538;
+    alphavantageData.data.datePrices["2024-07-21"] = 1.08992;
+    alphavantageData.data.datePrices["2024-07-14"] = 1.08855;
+    alphavantageData.data.datePrices["2024-07-07"] = 1.08260;
+    alphavantageData.data.datePrices["2024-06-30"] = 1.07353;
     mock = std::make_shared<HttpClientMock>();
 }
 
 template <>
-void AlphavantageApiTest<CryptoHistoryData>::SetUpTestSuite()
+void AlphavantageApiTest<SuiteCryptoHistoryData>::SetUpTestSuite()
 {
     urlRequest = "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_WEEKLY&symbol=BTC&market=EUR&apikey=demo";
     urlResponse = "{\n    \"Meta Data\": "
@@ -293,23 +293,23 @@ void AlphavantageApiTest<CryptoHistoryData>::SetUpTestSuite()
                   "\"4. close\": \"55876.86000000\",\n"
                   "\"5. volume\": \"5468.18414888\"\n"
                   "}\n}\n}";
-    data.header = "Weekly Prices and Volumes for Digital Currency";
-    data.timeZone = "UTC";
-    data.timestamp = "2024-09-27 00:00:00";
-    data.symbol = "BTC";
-    data.market = "EUR";
-    data.datePrices["2024-09-27"] = 58299.26000000;
-    data.datePrices["2024-09-22"] = 56988.75000000;
-    data.datePrices["2024-09-15"] = 53343.95000000;
-    data.datePrices["2024-09-08"] = 49505.02000000;
-    data.datePrices["2024-09-01"] = 51931.36000000;
-    data.datePrices["2024-08-25"] = 57402.19000000;
-    data.datePrices["2024-08-18"] = 53046.89000000;
-    data.datePrices["2024-08-11"] = 53835.66000000;
-    data.datePrices["2024-08-04"] = 53309.69000000;
-    data.datePrices["2024-07-28"] = 62854.02000000;
-    data.datePrices["2024-07-21"] = 62529.01;
-    data.datePrices["2024-07-14"] = 55876.86;
+    alphavantageData.data.header = "Weekly Prices and Volumes for Digital Currency";
+    alphavantageData.data.timeZone = "UTC";
+    alphavantageData.data.timestamp = "2024-09-27 00:00:00";
+    alphavantageData.data.symbol = "BTC";
+    alphavantageData.data.market = "EUR";
+    alphavantageData.data.datePrices["2024-09-27"] = 58299.26000000;
+    alphavantageData.data.datePrices["2024-09-22"] = 56988.75000000;
+    alphavantageData.data.datePrices["2024-09-15"] = 53343.95000000;
+    alphavantageData.data.datePrices["2024-09-08"] = 49505.02000000;
+    alphavantageData.data.datePrices["2024-09-01"] = 51931.36000000;
+    alphavantageData.data.datePrices["2024-08-25"] = 57402.19000000;
+    alphavantageData.data.datePrices["2024-08-18"] = 53046.89000000;
+    alphavantageData.data.datePrices["2024-08-11"] = 53835.66000000;
+    alphavantageData.data.datePrices["2024-08-04"] = 53309.69000000;
+    alphavantageData.data.datePrices["2024-07-28"] = 62854.02000000;
+    alphavantageData.data.datePrices["2024-07-21"] = 62529.01;
+    alphavantageData.data.datePrices["2024-07-14"] = 55876.86;
     mock = std::make_shared<HttpClientMock>();
 }
 
@@ -323,49 +323,99 @@ template <typename T>
 std::shared_ptr<HttpClientMock> AlphavantageApiTest<T>::mock = nullptr;
 
 template <typename T>
-T AlphavantageApiTest<T>::data;
+T AlphavantageApiTest<T>::alphavantageData;
 
-using MyTypes = ::testing::Types<StockData, ForexData, ForexHistoryData, CryptoHistoryData>;
+using MyTypes = ::testing::Types<SuiteStockData, SuiteForexData, SuiteForexHistoryData, SuiteCryptoHistoryData>;
 TYPED_TEST_SUITE(AlphavantageApiTest, MyTypes);
 
 template <typename T>
 void SetTypeRequest(AlphavantageApiTest<T> *testPtr)
 {
-    if (stockApi::alphavantageApiSuite::alphavantageApi<StockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<StockData> *>(testPtr->sample))
+    if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *>(testPtr->sample))
         ptr->setRequest("IBM");
-    else if (stockApi::alphavantageApiSuite::alphavantageApi<ForexData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<ForexData> *>(testPtr->sample))
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *>(testPtr->sample))
         ptr->setRequest("USD", "JPY");
-    else if (stockApi::alphavantageApiSuite::alphavantageApi<ForexHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<ForexHistoryData> *>(testPtr->sample))
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *>(testPtr->sample))
         ptr->setRequest("EUR", "USD", stockApi::alphavantageApiSuite::TimeSeries::weekly);
-    else if (stockApi::alphavantageApiSuite::alphavantageApi<CryptoHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<CryptoHistoryData> *>(testPtr->sample))
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *>(testPtr->sample))
         ptr->setRequest("BTC", "EUR", stockApi::alphavantageApiSuite::TimeSeries::weekly);
 }
 
 template <typename T>
 std::string SetRequestResponse(AlphavantageApiTest<T> *testPtr)
 {
-    if (stockApi::alphavantageApiSuite::alphavantageApi<StockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<StockData> *>(testPtr->sample))
+    if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *>(testPtr->sample))
     {
         ptr->setRequest("ETH");
         return "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=ETH&apikey=demo";
     }
-    else if (stockApi::alphavantageApiSuite::alphavantageApi<ForexData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<ForexData> *>(testPtr->sample))
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *>(testPtr->sample))
     {
         ptr->setRequest("JPY", "USD");
         return "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=JPY&to_currency=USD&apikey=demo";
     }
-    else if (stockApi::alphavantageApiSuite::alphavantageApi<ForexHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<ForexHistoryData> *>(testPtr->sample))
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *>(testPtr->sample))
     {
         ptr->setRequest("CNY", "NGN", stockApi::alphavantageApiSuite::TimeSeries::weekly);
         return "https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=CNY&to_symbol=NGN&apikey=demo";
     }
-    else if (stockApi::alphavantageApiSuite::alphavantageApi<CryptoHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<CryptoHistoryData> *>(testPtr->sample))
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *>(testPtr->sample))
     {
         ptr->setRequest("DOGE", "AUD", stockApi::alphavantageApiSuite::TimeSeries::weekly);
         return "https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_WEEKLY&symbol=DOGE&market=AUD&apikey=demo";
     }
     else
         return "";
+}
+
+template <typename T>
+void NonUnderlyingDataCheck(AlphavantageApiTest<T> *testPtr)
+{
+    if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *>(testPtr->sample))
+    {
+        stockApi::Stock stock = ptr->getStock();
+        EXPECT_TRUE(stock.isEmpty());
+    }
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *>(testPtr->sample))
+    {
+        stockApi::Forex forex = ptr->getForex();
+        EXPECT_TRUE(forex.isEmpty());
+    }
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *>(testPtr->sample))
+    {
+        stockApi::ForexHistory forexHistory = ptr->getForexHistory();
+        EXPECT_TRUE(forexHistory.isEmpty());
+    }
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *>(testPtr->sample))
+    {
+        stockApi::CryptoHistory cryptoHistory = ptr->getCryptoHistory();
+        EXPECT_TRUE(cryptoHistory.isEmpty());
+    }
+}
+
+template <typename T>
+void UnderlyingDataCheck(AlphavantageApiTest<T> *testPtr)
+{
+    if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteStockData> *>(testPtr->sample))
+    {
+        stockApi::Stock stock = ptr->getStock();
+        EXPECT_FALSE(stock.isEmpty());
+    }
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexData> *>(testPtr->sample))
+    {
+        stockApi::Forex forex = ptr->getForex();
+        EXPECT_FALSE(forex.isEmpty());
+    }
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteForexHistoryData> *>(testPtr->sample))
+    {
+        stockApi::ForexHistory forexHistory = ptr->getForexHistory();
+        EXPECT_FALSE(forexHistory.isEmpty());
+    }
+    else if (stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *ptr = dynamic_cast<stockApi::alphavantageApiSuite::alphavantageApi<SuiteCryptoHistoryData> *>(testPtr->sample))
+    {
+        stockApi::CryptoHistory cryptoHistory = ptr->getCryptoHistory();
+        EXPECT_FALSE(cryptoHistory.isEmpty());
+    }
 }
 
 TYPED_TEST(AlphavantageApiTest, SetApiKey)
@@ -447,7 +497,7 @@ TYPED_TEST(AlphavantageApiTest, GetDataAfterGoodResponse)
 {
     EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(this->urlResponse));
     EXPECT_FALSE(this->sample->getData().isEmpty());
-    EXPECT_EQ(this->sample->getData(), this->data);
+    EXPECT_EQ(this->sample->getData(), this->alphavantageData);
 }
 
 TYPED_TEST(AlphavantageApiTest, GetDataAfterGoodBadResponse)
@@ -456,7 +506,34 @@ TYPED_TEST(AlphavantageApiTest, GetDataAfterGoodBadResponse)
     testing::InSequence seq;
     EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(this->urlResponse));
     EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(response));
-    EXPECT_EQ(this->sample->getData(), this->data);
+    EXPECT_EQ(this->sample->getData(), this->alphavantageData);
     this->sample->sendRequest();
     EXPECT_TRUE(this->sample->getData().isEmpty());
+}
+
+TYPED_TEST(AlphavantageApiTest, GetNonUnderlyingDataAfterBadResponse)
+{
+    std::string response = "Hello";
+    EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(response));
+    EXPECT_TRUE(this->sample->getData().isEmpty());
+    NonUnderlyingDataCheck(this);
+}
+
+TYPED_TEST(AlphavantageApiTest, GetUnderlyingDataAfterGoodResponse)
+{
+    EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(this->urlResponse));
+    EXPECT_FALSE(this->sample->getData().isEmpty());
+    EXPECT_EQ(this->sample->getData(), this->alphavantageData);
+    UnderlyingDataCheck(this);
+}
+
+TYPED_TEST(AlphavantageApiTest, GetNonUnderlyingDataAfterGoodBadResponse)
+{
+    std::string response = "Hello";
+    testing::InSequence seq;
+    EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(this->urlResponse));
+    EXPECT_CALL(*this->mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(response));
+    EXPECT_EQ(this->sample->getData(), this->alphavantageData);
+    this->sample->sendRequest();
+    NonUnderlyingDataCheck(this);
 }
