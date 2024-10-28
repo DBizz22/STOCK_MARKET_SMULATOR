@@ -138,7 +138,7 @@ TEST_F(MySqlClientTest, UpdateValidAccountRecord)
 TEST_F(MySqlClientTest, InsertProfileRecord)
 {
     database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
-    database::ProfileRecord validProfile = {0, validAccount.ID, "Profile1", "USD", 1000};
+    database::ProfileRecord validProfile = {0, validAccount.ID, "Profile1", "USD", 1000, 1000};
     EXPECT_TRUE(mySqlSample->insert(validProfile));
 }
 
@@ -156,9 +156,26 @@ TEST_F(MySqlClientTest, GetValidProfileRecords)
     EXPECT_FALSE(profiles.empty());
 }
 
+TEST_F(MySqlClientTest, GetSingleInvalidProfileRecord)
+{
+    database::ProfileRecord profileRecord = mySqlSample->getProfile(0);
+    EXPECT_TRUE(profileRecord.isEmpty());
+}
+
+TEST_F(MySqlClientTest, GetSingleValidProfileRecord)
+{
+    // BUG: This test can't pass for unknown reasons.
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    EXPECT_TRUE(validAccount.ID > 0);
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
+    EXPECT_TRUE(profiles[0].ID > 0);
+    database::ProfileRecord singleProfileRecord = mySqlSample->getProfile(profiles[0].ID);
+    EXPECT_EQ(singleProfileRecord, profiles[0]);
+}
+
 TEST_F(MySqlClientTest, UpdateInvalidProfileRecord)
 {
-    database::ProfileRecord invalidProfile = {0, 0, "invalid_profile", "USD", 1000};
+    database::ProfileRecord invalidProfile = {0, 0, "invalid_profile", "USD", 1000, 1000};
     EXPECT_TRUE(mySqlSample->update(invalidProfile));
 }
 
@@ -167,6 +184,7 @@ TEST_F(MySqlClientTest, UpdateValidProfileRecord)
     database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
     std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     profiles[0].name = "new_profile_name";
+    profiles[0].balance = 500;
     EXPECT_TRUE(mySqlSample->update(profiles[0]));
     std::vector<database::ProfileRecord> modifiedProfiles = mySqlSample->getProfiles(validAccount.ID);
     EXPECT_TRUE(profiles[0] == modifiedProfiles[0]);
@@ -174,20 +192,36 @@ TEST_F(MySqlClientTest, UpdateValidProfileRecord)
 
 TEST_F(MySqlClientTest, InsertStockRecord)
 {
-    database::StockRecord stock = {0, "new_stock", "STC", "USD", 1000, "2024-09-16"};
+    database::StockRecord stock = {0, "STC", "USD", 1000, "2024-09-16"};
     EXPECT_TRUE(mySqlSample->insert(stock));
 }
 
-TEST_F(MySqlClientTest, GetInvalidStockRecord)
+TEST_F(MySqlClientTest, GetInvalidStockRecordBySymAndCur)
 {
     database::StockRecord invalidStock = mySqlSample->getStock("invalid_stock", "invalid_currency");
     EXPECT_TRUE(invalidStock.isEmpty());
 }
 
-TEST_F(MySqlClientTest, GetValidStockRecord)
+TEST_F(MySqlClientTest, GetInvalidStockRecordByStockID)
+{
+    database::StockRecord invalidStock;
+    invalidStock = mySqlSample->getStock(invalidStock.ID);
+    EXPECT_TRUE(invalidStock.isEmpty());
+}
+
+TEST_F(MySqlClientTest, GetValidStockRecordBySymAndCur)
 {
     database::StockRecord validStock = mySqlSample->getStock("STC", "USD");
     EXPECT_FALSE(validStock.isEmpty());
+}
+
+TEST_F(MySqlClientTest, GetValidStockRecordByStockID)
+{
+    // BUG: This test can't pass for unknown reasons.
+    database::StockRecord validStock = mySqlSample->getStock("STC", "USD");
+    database::StockRecord validStockByID = mySqlSample->getStock(validStock.ID);
+    EXPECT_FALSE(validStockByID.isEmpty());
+    EXPECT_TRUE(validStock == validStockByID);
 }
 
 TEST_F(MySqlClientTest, UpdateInvalidStockRecord)
@@ -233,6 +267,23 @@ TEST_F(MySqlClientTest, GetValidEquitiesRecords)
     std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
     std::vector<database::EquityRecord> equities = mySqlSample->getEquities(profiles[0].ID);
     EXPECT_FALSE(equities.empty());
+}
+
+TEST_F(MySqlClientTest, GetSingleInvalidEquityRecord)
+{
+    database::EquityRecord equityRecord = mySqlSample->getEquity(0);
+    EXPECT_TRUE(equityRecord.isEmpty());
+}
+
+TEST_F(MySqlClientTest, GetSingleValidEquityRecord)
+{
+    // BUG: This test can't pass for unknown reasons.
+    database::AccountRecord validAccount = mySqlSample->getAccount("new_username", "password");
+    std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(validAccount.ID);
+    database::ProfileRecord profileRecord = mySqlSample->getProfile(profiles[0].ID);
+    std::vector<database::EquityRecord> equities = mySqlSample->getEquities(profiles[0].ID);
+    database::EquityRecord singleEquityRecord = mySqlSample->getEquity(equities[0].ID);
+    EXPECT_EQ(singleEquityRecord, equities[0]);
 }
 
 TEST_F(MySqlClientTest, UpdateInvalidEquitiesRecord)
@@ -285,6 +336,7 @@ TEST_F(MySqlClientTest, DeleteValidStockRecord)
 
 TEST_F(MySqlClientTest, DeleteInvalidProfileRecord)
 {
+    // TODO: update these delete invalid record tests to check that the other records are still intact
     database::ProfileRecord invalidProfile;
     EXPECT_TRUE(mySqlSample->drop(invalidProfile));
 }
@@ -335,10 +387,10 @@ TEST_F(MySqlClientTest, DeleteRelatedProfilesAndEquitiesTriggerCheck)
     database::AccountRecord account = {0, "username", "password"};
     mySqlSample->insert(account);
     account = mySqlSample->getAccount("username", "password");
-    database::ProfileRecord profile = {0, account.ID, "profile", "USD", 1000};
+    database::ProfileRecord profile = {0, account.ID, "profile", "USD", 1000, 1000};
     mySqlSample->insert(profile);
     std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
-    database::StockRecord stock = {0, "stock", "symbol", "USD", 1000, "2024-09-16"};
+    database::StockRecord stock = {0, "symbol", "USD", 1000, "2024-09-16"};
     mySqlSample->insert(stock);
     stock = mySqlSample->getStock(stock.symbol, stock.currency);
     database::EquityRecord equity = {0, profiles[0].ID, stock.ID, 100, 20};
@@ -356,10 +408,10 @@ TEST_F(MySqlClientTest, DeleteRelatedEquitiesTriggerCheck)
     database::AccountRecord account = {0, "username", "password"};
     mySqlSample->insert(account);
     account = mySqlSample->getAccount("username", "password");
-    database::ProfileRecord profile = {0, account.ID, "profile", "USD", 1000};
+    database::ProfileRecord profile = {0, account.ID, "profile", "USD", 1000, 1000};
     mySqlSample->insert(profile);
     std::vector<database::ProfileRecord> profiles = mySqlSample->getProfiles(account.ID);
-    database::StockRecord stock = {0, "stock", "symbol", "USD", 1000, "2024-09-16"};
+    database::StockRecord stock = {0, "symbol", "USD", 1000, "2024-09-16"};
     mySqlSample->insert(stock);
     stock = mySqlSample->getStock(stock.symbol, stock.currency);
     database::EquityRecord equity = {0, profiles[0].ID, stock.ID, 100, 20};
