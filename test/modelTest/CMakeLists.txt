@@ -1,0 +1,4 @@
+set(modelTestFiles settingsModelTest.cpp searchModelTest.cpp signUpModelTest.cpp signInModelTest.cpp profileModelTest.cpp equityModelTest.cpp)
+add_executable(logicModelTest ${modelTestFiles})
+target_link_libraries(logicModelTest PRIVATE stockApiMock databaseClientMock timeApiMock logicModel gtest_main gmock_main)
+gtest_discover_tests(logicModelTest)
