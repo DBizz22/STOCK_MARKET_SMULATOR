@@ -16,9 +16,8 @@ target_include_directories(timeApiMock PUBLIC .)
 
 include(Testing)
 
-# add_subdirectory(curlTest)
-# add_subdirectory(alphavantageApiSuiteTest)
-# add_subdirectory(mySqlClientTest)
-
-# add_subdirectory(timeApiTest)
+add_subdirectory(curlTest)
+add_subdirectory(alphavantageApiSuiteTest)
+add_subdirectory(mySqlClientTest)
+add_subdirectory(timeApiTest)
 add_subdirectory(modelTest)
