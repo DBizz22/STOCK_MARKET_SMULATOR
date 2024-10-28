@@ -10,8 +10,198 @@
 
 namespace stockApi
 {
+    struct Stock
+    {
+        std::string header;
+        std::string timeZone;
+        std::string timestamp;
+        std::string symbol;
+        double price{0};
+        void reset()
+        {
+            header.clear();
+            timeZone.clear();
+            timestamp.clear();
+            symbol.clear();
+            price = 0;
+        }
+        bool isEmpty() const
+        {
+            return header.empty() && timestamp.empty() && timeZone.empty() && symbol.empty() && price == 0;
+        }
+        friend bool operator==(const Stock &lhs, const Stock &rhs)
+        {
+            return (lhs.header == rhs.header &&
+                    lhs.timeZone == rhs.timeZone &&
+                    lhs.timestamp == rhs.timestamp &&
+                    lhs.symbol == rhs.symbol &&
+                    lhs.price == rhs.price);
+        }
+        friend bool operator!=(const Stock &lhs, const Stock &rhs)
+        {
+            return !(lhs.header == rhs.header &&
+                     lhs.timeZone == rhs.timeZone &&
+                     lhs.timestamp == rhs.timestamp &&
+                     lhs.symbol == rhs.symbol &&
+                     lhs.price == rhs.price);
+        }
+    };
+
+    struct Forex
+    {
+        std::string header;
+        std::string timeZone;
+        std::string timestamp;
+        std::string fromCurrency;
+        std::string toCurrency;
+        double price{0};
+        void reset()
+        {
+            header.clear();
+            timeZone.clear();
+            timestamp.clear();
+            fromCurrency.clear();
+            toCurrency.clear();
+            price = 0;
+        }
+        bool isEmpty() const
+        {
+            return header.empty() && timeZone.empty() && timestamp.empty() && fromCurrency.empty() && toCurrency.empty() && price == 0;
+        }
+        friend bool operator==(const Forex &lhs, const Forex &rhs)
+        {
+            return (lhs.header == rhs.header &&
+                    lhs.timeZone == rhs.timeZone &&
+                    lhs.timestamp == rhs.timestamp &&
+                    lhs.fromCurrency == rhs.fromCurrency &&
+                    lhs.toCurrency == rhs.toCurrency &&
+                    lhs.price == rhs.price);
+        }
+        friend bool operator!=(const Forex &lhs, const Forex &rhs)
+        {
+            return !(lhs.header == rhs.header &&
+                     lhs.timeZone == rhs.timeZone &&
+                     lhs.timestamp == rhs.timestamp &&
+                     lhs.fromCurrency == rhs.fromCurrency &&
+                     lhs.toCurrency == rhs.toCurrency &&
+                     lhs.price == rhs.price);
+        }
+    };
+
+    struct ForexHistory
+    {
+        std::string header;
+        std::string timeZone;
+        std::string timestamp;
+        std::string fromCurrency;
+        std::string toCurrency;
+        std::map<std::string, double> datePrices;
+        void reset()
+        {
+            header.clear();
+            timeZone.clear();
+            timestamp.clear();
+            fromCurrency.clear();
+            toCurrency.clear();
+            datePrices.clear();
+        }
+        bool isEmpty() const
+        {
+            return header.empty() && timeZone.empty() && timestamp.empty() && fromCurrency.empty() && toCurrency.empty() && datePrices.empty();
+        }
+        friend bool operator==(const ForexHistory &lhs, const ForexHistory &rhs)
+        {
+            return (lhs.header == rhs.header &&
+                    lhs.timeZone == rhs.timeZone &&
+                    lhs.timestamp == rhs.timestamp &&
+                    lhs.fromCurrency == rhs.fromCurrency &&
+                    lhs.toCurrency == rhs.toCurrency &&
+                    lhs.datePrices == rhs.datePrices);
+        }
+        friend bool operator!=(const ForexHistory &lhs, const ForexHistory &rhs)
+        {
+            return !(lhs.header == rhs.header &&
+                     lhs.timeZone == rhs.timeZone &&
+                     lhs.timestamp == rhs.timestamp &&
+                     lhs.fromCurrency == rhs.fromCurrency &&
+                     lhs.toCurrency == rhs.toCurrency &&
+                     lhs.datePrices == rhs.datePrices);
+        }
+    };
+
+    struct CryptoHistory
+    {
+        std::string header;
+        std::string timeZone;
+        std::string timestamp;
+        std::string symbol;
+        std::string market;
+        std::map<std::string, double> datePrices;
+        void reset()
+        {
+            header.clear();
+            timeZone.clear();
+            timestamp.clear();
+            symbol.clear();
+            market.clear();
+            datePrices.clear();
+        }
+        bool isEmpty() const
+        {
+            return header.empty() && timeZone.empty() && timestamp.empty() && symbol.empty() && market.empty() && datePrices.empty();
+        }
+        friend bool operator==(const CryptoHistory &lhs, const CryptoHistory &rhs)
+        {
+            return (lhs.header == rhs.header &&
+                    lhs.timeZone == rhs.timeZone &&
+                    lhs.timestamp == rhs.timestamp &&
+                    lhs.symbol == rhs.symbol &&
+                    lhs.market == rhs.market &&
+                    lhs.datePrices == rhs.datePrices);
+        }
+        friend bool operator!=(const CryptoHistory &lhs, const CryptoHistory &rhs)
+        {
+            return !(lhs.header == rhs.header &&
+                     lhs.timeZone == rhs.timeZone &&
+                     lhs.timestamp == rhs.timestamp &&
+                     lhs.symbol == rhs.symbol &&
+                     lhs.market == rhs.market &&
+                     lhs.datePrices == rhs.datePrices);
+        }
+    };
+
     class ApiBase
     {
+    public:
+        virtual const std::string &apiKey() const = 0;
+        virtual std::string &apiKey() = 0;
+        virtual const std::string &getRequest() const = 0;
+        virtual std::string &getRequest() = 0;
+        virtual bool sendRequest() = 0;
+        virtual const std::string &getResponse() const = 0;
+        virtual void setRequest(const std::string &symbol)
+        {
+        }
+        virtual void setRequest(const std::string &fromCurrency, const std::string &toCurrency)
+        {
+        }
+        virtual Stock getStock()
+        {
+            return Stock();
+        }
+        virtual Forex getForex()
+        {
+            return Forex();
+        }
+        virtual ForexHistory getForexHistory()
+        {
+            return ForexHistory();
+        }
+        virtual CryptoHistory getCryptoHistory()
+        {
+            return CryptoHistory();
+        }
+        virtual ~ApiBase() {}
     };
 
     template <typename T>
@@ -21,7 +211,7 @@ namespace stockApi
         bool dataReady_ = false;
         std::string apiKey_;
         std::string request_;
-        T data_;
+        T suiteData;
         std::shared_ptr<HttpClient> client_;
 
     protected:
@@ -91,12 +281,12 @@ namespace stockApi
         try
         {
             boost::json::value json = boost::json::parse(getResponse());
-            data_ = boost::json::value_to<T>(json);
+            suiteData = boost::json::value_to<T>(json);
         }
         catch (const std::exception &e)
         {
             std::cerr << e.what() << '\n';
-            data_.reset();
+            suiteData.reset();
         }
     }
 
@@ -105,11 +295,11 @@ namespace stockApi
     {
         if (!dataReady_)
         {
-            data_.reset();
+            suiteData.reset();
             processResponse();
             dataReady_ = true;
         }
-        return data_;
+        return suiteData;
     }
 
 } // namespace stockApi
