@@ -20,23 +20,21 @@ public:
     }
     static void SetUpTestSuite()
     {
-        urlRequest = "http://worldtimeapi.org/api/timezone/Europe/London";
+        urlRequest = "https://timeapi.io/api/time/current/zone?timeZone=Europe%2FLondon";
         urlResponse = R"({
-                      "utc_offset" : "+01:00",
-        "timezone" : "Europe/London",
-        "day_of_week" : 4,
-        "day_of_year" : 291,
-        "datetime" : "2024-10-17T20:41:17.190200+01:00",
-        "utc_datetime" : "2024-10-17T19:41:17.190200+00:00",
-        "unixtime" : 1729194077,
-        "raw_offset" : 0,
-        "week_number" : 42,
-        "dst" : true,
-        "abbreviation" : "BST",
-        "dst_offset" : 3600,
-        "dst_from" : "2024-03-31T01:00:00+00:00",
-        "dst_until" : "2024-10-27T01:00:00+00:00",
-        "client_ip" : "91.243.81.186"
+                "year": 2024,
+                "month": 11,
+                "day": 11,
+                "hour": 13,
+                "minute": 0,
+                "seconds": 12,
+                "milliSeconds": 903,
+                "dateTime": "2024-11-11T13:00:12.9030271",
+                "date": "11/11/2024",
+                "time": "13:00",
+                "timeZone": "Europe/London",
+                "dayOfWeek": "Monday",
+                "dstActive": false
         })";
     }
     static void TearDownTestSuite()
@@ -80,7 +78,7 @@ TEST_F(UTCTimeApiTest, GetInvalidTime)
     std::string invalidResponse = R"({
         "invalid_key" : "invalid_value"
         })";
-    Time emptyTime;
+    DateTime emptyTime;
     EXPECT_CALL(*mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(invalidResponse));
     UTCTimeApiSample->sendRequest();
     EXPECT_EQ(UTCTimeApiSample->getTime(), emptyTime);
@@ -88,7 +86,7 @@ TEST_F(UTCTimeApiTest, GetInvalidTime)
 
 TEST_F(UTCTimeApiTest, GetValidTime)
 {
-    Time validUTCDateTime = {"2024-10-17", "19:41:17"};
+    DateTime validUTCDateTime = {"2024-11-11", "13:00:12"};
     EXPECT_CALL(*mock, getResponse()).Times(1).WillOnce(testing::ReturnRef(urlResponse));
     UTCTimeApiSample->sendRequest();
     EXPECT_EQ(UTCTimeApiSample->getTime(), validUTCDateTime);
@@ -96,10 +94,10 @@ TEST_F(UTCTimeApiTest, GetValidTime)
 
 TEST_F(UTCTimeApiTest, UTCTimeComparators)
 {
-    Time time1 = {"2024-10-17", "19:41:17"};
-    Time time2 = {"2024-10-17", "20:41:17"};
-    Time time3 = {"2024-10-18", "19:41:17"};
-    Time time4 = {"2024-10-18", "20:41:17"};
+    DateTime time1 = {"2024-10-17", "19:41:17"};
+    DateTime time2 = {"2024-10-17", "20:41:17"};
+    DateTime time3 = {"2024-10-18", "19:41:17"};
+    DateTime time4 = {"2024-10-18", "20:41:17"};
     EXPECT_TRUE(time1 < time2);
     EXPECT_TRUE(time2 < time3);
     EXPECT_TRUE(time3 < time4);
@@ -110,10 +108,10 @@ TEST_F(UTCTimeApiTest, UTCTimeComparators)
 
 TEST_F(UTCTimeApiTest, GetTimeDIfferenceInSeconds)
 {
-    Time time1 = {"2024-10-17", "19:41:17"};
-    Time time2 = {"2024-10-17", "20:41:17"};
-    Time time3 = {"2024-10-18", "00:00:00"};
-    Time time4 = {"2024-10-20", "00:00:00"};
+    DateTime time1 = {"2024-10-17", "19:41:17"};
+    DateTime time2 = {"2024-10-17", "20:41:17"};
+    DateTime time3 = {"2024-10-18", "00:00:00"};
+    DateTime time4 = {"2024-10-20", "00:00:00"};
     EXPECT_EQ(time2 - time1, 3600);
     EXPECT_EQ(time4 - time3, 172800);
 }
