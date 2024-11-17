@@ -17,30 +17,30 @@ TEST_GROUP(CurlClientTest)
     }
 };
 
-IGNORE_TEST(CurlClientTest, SendRequestFailure)
+TEST(CurlClientTest, SendRequestFailure)
 {
     bool result = sample->sendRequest("");
     CHECK(result == false);
 }
 
-IGNORE_TEST(CurlClientTest, SendRequestSuccess)
+TEST(CurlClientTest, SendRequestSuccess)
 {
     bool result = sample->sendRequest(request);
     CHECK(result == true);
 }
 
-IGNORE_TEST(CurlClientTest, GetResponseEmptyString)
+TEST(CurlClientTest, GetResponseEmptyString)
 {
     CHECK_EQUAL(sample->getResponse(), "");
 }
 
-IGNORE_TEST(CurlClientTest, GetResponseString)
+TEST(CurlClientTest, GetResponseString)
 {
     sample->sendRequest(request);
     CHECK_EQUAL(sample->getResponse(), "200 OK");
 }
 
-IGNORE_TEST(CurlClientTest, ResponseAfterGoodThenBadRequest)
+TEST(CurlClientTest, ResponseAfterGoodThenBadRequest)
 {
     sample->sendRequest(request);
     bool result = sample->sendRequest("");
