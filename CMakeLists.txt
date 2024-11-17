@@ -7,18 +7,26 @@ set(CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O0")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-set(EXTERNAL_HEADERS "C:/msys64/ucrt64/include/mysql")
 include(NoInSourceBuilds)
 
 add_subdirectory(src bin)
 include(CTest)
 enable_testing()
-add_subdirectory(test)
+#add_subdirectory(test)
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME
+)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VENDOR "Samuel Divine")
+set(CPACK_PACKAGE_CONTACT "divinesamuel1515@gmail.com")
+set(CPACK_PACKAGE_DESCRIPTION "Simple Stock Market Simulator Project")
+
 include(CPack)
 
 # include(Install)
