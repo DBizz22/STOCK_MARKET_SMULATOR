@@ -283,9 +283,19 @@ namespace stockApi
             boost::json::value json = boost::json::parse(getResponse());
             suiteData = boost::json::value_to<T>(json);
         }
+        catch (const boost::system::system_error &e)
+        {
+            std::cerr << "Error" << e.code() << ": " << e.what() << std::endl;
+            suiteData.reset();
+        }
         catch (const std::exception &e)
         {
-            std::cerr << e.what() << '\n';
+            std::cerr << e.what() << std::endl;
+            suiteData.reset();
+        }
+        catch (...)
+        {
+            std::cerr << "Unknown error" << std::endl;
             suiteData.reset();
         }
     }

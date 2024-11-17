@@ -2,6 +2,14 @@
 #include <stdexcept>
 #define SERIES 12
 
+bool isErrorMessage(const boost::json::value &json)
+{
+    auto ptr = json.as_object().find("Error Message");
+    if (ptr != json.as_object().end())
+        return true;
+    return false;
+}
+
 class BadPriceResponse : public std::logic_error
 {
 public:
@@ -48,6 +56,8 @@ bool stockApi::alphavantageApiSuite::operator!=(const stockApi::alphavantageApiS
 
 stockApi::alphavantageApiSuite::SuiteStockData stockApi::alphavantageApiSuite::tag_invoke(const boost::json::value_to_tag<SuiteStockData> &, const boost::json::value &json)
 {
+    if (isErrorMessage(json))
+        throw std::runtime_error("Bad Request");
     stockApi::alphavantageApiSuite::SuiteStockData stock;
     stock.data.header = json.as_object().begin()->key();
     auto ptr = json.as_object().begin()->value();
@@ -85,10 +95,16 @@ bool stockApi::alphavantageApiSuite::operator!=(const stockApi::alphavantageApiS
 
 stockApi::alphavantageApiSuite::SuiteForexData stockApi::alphavantageApiSuite::tag_invoke(const boost::json::value_to_tag<SuiteForexData> &, const boost::json::value &json)
 {
+    if (isErrorMessage(json))
+        throw std::runtime_error("Bad Request");
+
     stockApi::alphavantageApiSuite::SuiteForexData forex;
-    forex.data.header = json.as_object().begin()->key();
+    /*forex.data.header = json.as_object().begin()->key();
     auto header = json.as_object().find("Realtime Currency Exchange Rate");
-    auto ptr = header->value();
+    auto ptr = header->value();*/
+    forex.data.header = json.as_object().begin()->key();
+    auto ptr = json.as_object().begin()->value();
+
     forex.data.timeZone = ptr.as_object()["7. Time Zone"].as_string().c_str();
     forex.data.timestamp = ptr.as_object()["6. Last Refreshed"].as_string().c_str();
     forex.data.fromCurrency = ptr.as_object()["1. From_Currency Code"].as_string().c_str();
