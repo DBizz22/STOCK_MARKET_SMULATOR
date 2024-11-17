@@ -4,13 +4,13 @@
 
 DateTime tag_invoke(const boost::json::value_to_tag<DateTime> &, const boost::json::value &json)
 {
-    DateTime time;
-    std::string dateTime = json.as_object().find("utc_datetime")->value().as_string().c_str();
-    int pos = dateTime.find('T');
-    int end = dateTime.find('.');
-    time.date = dateTime.substr(0, pos);
-    time.time = dateTime.substr(pos + 1, end - pos - 1);
-    return time;
+    DateTime dateTime;
+    std::string dateTimeStr = json.as_object().find("dateTime")->value().as_string().c_str();
+    size_t pos = dateTimeStr.find('T');
+    size_t end = dateTimeStr.find('.');
+    dateTime.date = dateTimeStr.substr(0, pos);
+    dateTime.time = dateTimeStr.substr(pos + 1, end - pos - 1);
+    return dateTime;
 }
 
 bool operator==(const DateTime &lhs, const DateTime &rhs)
@@ -49,7 +49,7 @@ double operator-(const DateTime &lhs, const DateTime &rhs)
 UTCTimeApi::UTCTimeApi(const std::shared_ptr<HttpClient> &client)
 {
     client_ = client;
-    requestString_ = "http://worldtimeapi.org/api/timezone/Europe/London";
+    requestString_ = "https://timeapi.io/api/time/current/zone?timeZone=Europe%2FLondon";
 }
 
 bool UTCTimeApi::sendRequest()
