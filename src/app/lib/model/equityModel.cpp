@@ -123,7 +123,7 @@ bool EquityModel::addEquity(const SearchData &searchData, const double &quantity
 {
     if (equityDatas_.size() >= MAX_EQUITIES)
         return false;
-    database::StockRecord stockRecord = databaseClient_->getStock(searchData.symbol, searchData.symbol);
+    database::StockRecord stockRecord = databaseClient_->getStock(searchData.symbol, searchData.currency);
     if (stockRecord.isEmpty())
         return false;
     if (!availableBalance(stockRecord.currentPrice, quantity))

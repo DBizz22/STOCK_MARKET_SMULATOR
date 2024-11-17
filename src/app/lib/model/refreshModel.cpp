@@ -10,6 +10,7 @@ RefreshModel::RefreshModel(const unsigned int &accountID, const std::shared_ptr<
 
 bool RefreshModel::refresh()
 {
+    bool result = true;
     for (const database::ProfileRecord &profileRecord : profileRecords_)
     {
         std::vector<database::EquityRecord> equityRecords = databaseClient_->getEquities(profileRecord.ID);
@@ -18,9 +19,9 @@ bool RefreshModel::refresh()
             database::StockRecord stockRecord = databaseClient_->getStock(equityRecord.stockID);
             if (!SearchModel::findForex(stockRecord.symbol, stockRecord.currency).isEmpty())
                 continue;
-            if (!SearchModel::findStock(stockRecord.symbol, stockRecord.currency).isEmpty())
-                return false;
+            if (SearchModel::findStock(stockRecord.symbol, stockRecord.currency).isEmpty())
+                result = false;
         }
     }
-    return true;
+    return result;
 }

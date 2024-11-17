@@ -60,13 +60,25 @@ bool SearchModel::updateDatabase(const SearchData &data)
 
 SearchData SearchModel::apiGetForex(const std::string &fromCurrency, const std::string &toCurrency)
 {
+    // TODO: update test for additional currency conversion
     SearchData result;
     apiManager_.forexApi->setRequest(fromCurrency, toCurrency);
     if (!apiManager_.forexApi->sendRequest())
         return {};
 
     result.convert(apiManager_.forexApi->getForex());
-    if (result.isEmpty() || !updateDatabase(result))
+
+    if (result.isEmpty() && toCurrency != "USD")
+    {
+        SearchData result2, result3;
+        result2 = findForex(fromCurrency, "USD");
+        result3 = findForex("USD", toCurrency);
+        result.currentPrice = result2.currentPrice * result3.currentPrice;
+        result.symbol = fromCurrency;
+        result.currency = toCurrency;
+    }
+
+    if (result.currentPrice == 0 || !updateDatabase(result))
         return {};
 
     return result;
@@ -101,6 +113,8 @@ SearchModel::SearchModel(const std::shared_ptr<database::DatabaseClient> &databa
 
 SearchData SearchModel::findForex(const std::string &fromCurrency, const std::string &toCurrency)
 {
+    if (fromCurrency.empty() || toCurrency.empty())
+        return {};
     SearchData searchData;
     if (!getCurrentUTCDateTime())
         return {};
@@ -116,6 +130,8 @@ SearchData SearchModel::findForex(const std::string &fromCurrency, const std::st
 
 SearchData SearchModel::findStock(const std::string &symbol, const std::string &currency)
 {
+    if (symbol.empty() || currency.empty())
+        return {};
     SearchData searchData;
     if (!getCurrentUTCDateTime())
         return {};
