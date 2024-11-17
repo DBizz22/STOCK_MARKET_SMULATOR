@@ -67,16 +67,16 @@
             "cleanFirst": false
         },
         {
-            "name": "MinGW Release Build",
+            "name": "MinGW_Release_Build",
             "configurePreset": "MinGW Release Config",
             "displayName": "MinGW Release Build",
-            "cleanFirst": true
+            "cleanFirst": false
         },
         {
             "name": "Ninja Debug Build",
             "configurePreset": "Ninja Debug Config",
             "displayName": "Ninja Debug Build",
-            "cleanFirst": true
+            "cleanFirst": false
         },
         {
             "name": "Ninja Release Build",
@@ -147,7 +147,7 @@
             "generators": [
                 "ZIP"
             ],
-            "packageDirectory": "${sourceDir}/build/Packages"
+            "packageDirectory": "Packages"
         },
         {
             "name": "Ninja Release Pack",
