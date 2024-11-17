@@ -1,0 +1,4 @@
+icon ICON "AppICON.ico"
+settingsIcon ICON "SettingsICON.ico"
+
+#include "wx/msw/wx.rc"
