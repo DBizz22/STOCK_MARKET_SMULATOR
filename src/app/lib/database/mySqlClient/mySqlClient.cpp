@@ -15,8 +15,8 @@ const char *const CreateProfilesTableQuery = "CREATE TABLE IF NOT EXISTS profile
                                              "`account` INT UNSIGNED ZEROFILL NOT NULL,"
                                              "`name` VARCHAR(45) NOT NULL DEFAULT \"No Name\","
                                              "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
-                                             "`initialValue` FLOAT NOT NULL DEFAULT 1000,"
-                                             "`balance` FLOAT NOT NULL,"
+                                             "`initialValue` DECIMAL(18,9) NOT NULL DEFAULT 1000,"
+                                             "`balance` DECIMAL(18,9) NOT NULL,"
                                              "PRIMARY KEY(`ID`),"
                                              "INDEX `account_idx` (`account` ASC)VISIBLE,"
                                              "CONSTRAINT `account` FOREIGN KEY(`account`)"
@@ -28,7 +28,7 @@ const char *const CreateStocksTableQuery = "CREATE TABLE IF NOT EXISTS stocks ("
                                            "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
                                            "`symbol` VARCHAR(45) NOT NULL,"
                                            "`currency` VARCHAR(45) NOT NULL DEFAULT \"USD\","
-                                           "`currentPrice` DECIMAL(12, 6) NOT NULL,"
+                                           "`currentPrice` DECIMAL(18,9) NOT NULL,"
                                            "`lastUpdate` DATE NOT NULL,"
                                            "PRIMARY KEY(`ID`))";
 
@@ -36,8 +36,8 @@ const char *const CreateEquitiesTableQuery = "CREATE TABLE IF NOT EXISTS equitie
                                              "`ID` INT UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,"
                                              "`profile` INT UNSIGNED ZEROFILL NOT NULL,"
                                              "`stock` INT UNSIGNED ZEROFILL NOT NULL,"
-                                             "`quantity` FLOAT NOT NULL,"
-                                             "`initialValue` DECIMAL(12, 6) NOT NULL,"
+                                             "`quantity` DECIMAL(18,9) NOT NULL,"
+                                             "`initialValue` DECIMAL(18,9) NOT NULL,"
                                              "PRIMARY KEY(`ID`),"
                                              "INDEX `profile_idx` (`profile` ASC) VISIBLE,"
                                              "INDEX `stock_idx` (`stock` ASC) VISIBLE,"
@@ -63,6 +63,11 @@ const char *const CreateDeleteRelatedEquitiesTrigger = "CREATE TRIGGER IF NOT EX
                                                        "DELETE FROM equities WHERE profile = OLD.ID; "
                                                        "END";
 
+const char *const CreateStockManagerEvent = "CREATE EVENT IF NOT EXISTS stock_manager "
+                                            "ON SCHEDULE EVERY 3 DAY "
+                                            "DO DELETE FROM stocks "
+                                            "WHERE ID NOT IN (SELECT stock FROM equities)";
+
 void database::mysql::MySQLClient::setupConnection()
 {
     sql.open(connection);
@@ -72,6 +77,7 @@ void database::mysql::MySQLClient::setupConnection()
     sql << CreateEquitiesTableQuery;
     sql << CreateDeleteRelatedProfilesAndEquitiesTrigger;
     sql << CreateDeleteRelatedEquitiesTrigger;
+    sql << CreateStockManagerEvent;
 }
 
 bool database::mysql::MySQLClient::inputQuery(const std::string &query)
@@ -148,6 +154,7 @@ database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials)
     connection = soci::connection_parameters(soci::mysql, "db=" + credentials.database + " user=" + credentials.user + " password=" + credentials.password + " reconnect=1");
     try
     {
+        soci::register_factory_mysql();
         setupConnection();
         databaseReady = true;
     }
@@ -272,7 +279,7 @@ bool database::mysql::MySQLClient::insert(const ProfileRecord &profile)
 bool database::mysql::MySQLClient::update(const ProfileRecord &profile)
 {
     std::string query = "UPDATE profiles SET name = \"" + profile.name + "\", balance = " + std::to_string(profile.balance);
-    query += " WHERE account = \"" + std::to_string(profile.accountID) + "\"";
+    query += " WHERE ID = " + std::to_string(profile.ID);
     return inputQuery(query);
 }
 
