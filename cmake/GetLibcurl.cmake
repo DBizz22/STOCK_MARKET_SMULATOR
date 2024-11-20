@@ -4,6 +4,7 @@ set(CURL_USE_SCHANNEL ON)
 
 set(CURL_USE_OPENSSL OFF)
 set(USE_WINDOWS_SSPI ON)
+set(USE_LIBIDN2 OFF)
 set(BUILD_CURL_EXE OFF)
 
 #[=[include(FetchContent)
