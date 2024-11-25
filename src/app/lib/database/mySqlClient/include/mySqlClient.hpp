@@ -19,7 +19,7 @@ namespace database
         class MySQLClient : public DatabaseClient
         {
         private:
-            soci::connection_parameters connection;
+            connectionParams credentials_;
             soci::session sql;
             bool databaseReady;
             void setupConnection();

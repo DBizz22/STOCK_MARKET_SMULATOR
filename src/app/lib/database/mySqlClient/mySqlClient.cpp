@@ -70,7 +70,8 @@ const char *const CreateStockManagerEvent = "CREATE EVENT IF NOT EXISTS stock_ma
 
 void database::mysql::MySQLClient::setupConnection()
 {
-    sql.open(connection);
+    soci::backend_factory const &backend = *soci::factory_mysql();
+    sql.open(backend, "db=" + credentials_.database + " user=" + credentials_.user + " password=" + credentials_.password);
     sql << CreateAccountsTableQuery;
     sql << CreateProfilesTableQuery;
     sql << CreateStocksTableQuery;
@@ -148,13 +149,11 @@ std::vector<T> database::mysql::MySQLClient::multipleOutputQuery(const std::stri
     return records;
 }
 
-database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials)
+database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials) : credentials_(credentials)
 {
     databaseReady = false;
-    connection = soci::connection_parameters(soci::mysql, "db=" + credentials.database + " user=" + credentials.user + " password=" + credentials.password + " reconnect=1");
     try
     {
-        soci::register_factory_mysql();
         setupConnection();
         databaseReady = true;
     }
@@ -173,7 +172,7 @@ database::mysql::MySQLClient::MySQLClient(const connectionParams &credentials)
 void database::mysql::MySQLClient::reset(const connectionParams &credentials)
 {
     databaseReady = false;
-    connection = soci::connection_parameters(soci::mysql, "db=" + credentials.database + " user=" + credentials.user + " password=" + credentials.password + " reconnect=1");
+    credentials_ = credentials;
     try
     {
         sql.close();
@@ -330,7 +329,26 @@ database::StockRecord database::mysql::MySQLClient::getStock(const std::string &
 database::StockRecord database::mysql::MySQLClient::getStock(const unsigned int &stockID)
 {
     std::string query = "SELECT * FROM stocks WHERE ID = " + std::to_string(stockID);
-    return singleOutputQuery<StockRecord>(query);
+    database::StockRecord record;
+    soci::indicator ind;
+    try
+    {
+        soci::statement st = (sql.prepare << query,
+                              soci::into(record));
+        st.execute(true);
+    }
+    catch (soci::mysql_soci_error const &e)
+    {
+        std::cerr << "MySQL error: " << e.err_num_
+                  << " " << e.what() << std::endl;
+        record.reset();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+        record.reset();
+    }
+    return record;
 }
 
 bool database::mysql::MySQLClient::insert(const EquityRecord &equity)
