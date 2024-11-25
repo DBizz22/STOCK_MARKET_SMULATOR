@@ -52,6 +52,23 @@ void ProfilePage::sortByColumn(int column)
     this->sortDirection[column] = -this->sortDirection[column];
 }
 
+std::string ProfilePage::formatValueStr(const double &value)
+{
+    std::string values("123456789");
+    std::string valueStr = std::to_string(value);
+    auto valueStrIter = std::find_first_of(valueStr.begin(), valueStr.end(), values.begin(), values.end());
+    if (valueStrIter == valueStr.end())
+        return "0.00";
+
+    int intPos = valueStr.find(*valueStrIter);
+    int pointPos = valueStr.find('.');
+
+    if (intPos < pointPos)
+        valueStr.erase(pointPos + 3, valueStr.size() - (pointPos + 3));
+
+    return valueStr;
+}
+
 void ProfilePage::addProfileDataToTable(const ProfileData &profileData)
 {
     int index = profileDataTable->GetItemCount();
@@ -62,9 +79,9 @@ void ProfilePage::addProfileDataToTable(const ProfileData &profileData)
     profileDataTable->InsertItem(index, profileData.name);
     profileDataTable->SetItem(index, 1, profileData.currency);
     profileDataTable->SetItem(index, 2, std::to_string(profileData.equitiesCount));
-    profileDataTable->SetItem(index, 3, std::to_string(profileData.equitiesValue));
-    profileDataTable->SetItem(index, 4, std::to_string(profileData.balance));
-    profileDataTable->SetItem(index, 5, std::to_string(profileData.percentageChange) + "%");
+    profileDataTable->SetItem(index, 3, formatValueStr(profileData.equitiesValue));
+    profileDataTable->SetItem(index, 4, formatValueStr(profileData.balance));
+    profileDataTable->SetItem(index, 5, formatValueStr(profileData.percentageChange) + "%");
     profileDataTable->SetItemFont(index, itemFont);
 
     if (profileData.percentageChange < 0)
@@ -161,7 +178,7 @@ void ProfilePage::openNewProfilePage()
                     }
                     if(!profileModel_->validateCurrency(currency))
                     {
-                        wxMessageBox("Invalid currency", "Error");
+                        wxMessageBox("Invalid currency code", "Error");
                         return;
                     }
                     if (!profileModel_->addProfile(name, balance, currency))
@@ -384,11 +401,6 @@ void ProfilePage::create()
         MenuCreated = true;
     }
 
-    /*refreshModel_ = std::make_shared<RefreshModel>(account_.ID, databaseClient_, *apiManager_);
-    if (!refreshModel_->refresh())
-    {
-        wxMessageBox("Failed to load data", "Error");
-    }*/
     profileModel_ = std::make_shared<ProfileModel>(account_.ID, profileDatas_, databaseClient_);
     frame_->SetMinSize(wxSize(0, 0));
     frame_->SetMaxSize(wxSize(1000, 1000));

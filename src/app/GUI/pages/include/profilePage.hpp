@@ -48,6 +48,7 @@ private:
     std::unordered_set<std::unique_ptr<ProfileData>> profileDataPtrs;
     static int compareValues(double a, double b, int direction);
     static int compareStrings(const std::string &a, const std::string &b, int direction);
+    std::string formatValueStr(const double &value);
     void openNewProfilePage();
     void closeNewProfilePage();
     void openEditProfilePage();

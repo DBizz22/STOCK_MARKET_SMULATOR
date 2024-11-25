@@ -9,7 +9,6 @@ StockMarketFrame::StockMarketFrame() : wxFrame(nullptr, wxID_ANY, "STOCK MARKET 
     credentials.user = "root";
     credentials.password = "enyiudo12real";
     databaseClient = std::make_shared<database::mysql::MySQLClient>(credentials);
-
     httpClient = std::make_shared<CurlClient>();
     apiManager = std::make_shared<ApiManager>();
     apiManager->UTCTimeApi = std::make_shared<UTCTimeApi>(httpClient);
