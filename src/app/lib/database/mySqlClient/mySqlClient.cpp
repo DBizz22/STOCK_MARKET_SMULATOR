@@ -105,12 +105,9 @@ template <typename T>
 T database::mysql::MySQLClient::singleOutputQuery(const std::string &query)
 {
     T record;
-    soci::indicator ind;
     try
     {
-        sql << query, soci::into(record, ind);
-        if (!sql.got_data() || ind != soci::i_ok)
-            record.reset();
+        sql << query, soci::into(record);
     }
     catch (soci::mysql_soci_error const &e)
     {
@@ -329,26 +326,7 @@ database::StockRecord database::mysql::MySQLClient::getStock(const std::string &
 database::StockRecord database::mysql::MySQLClient::getStock(const unsigned int &stockID)
 {
     std::string query = "SELECT * FROM stocks WHERE ID = " + std::to_string(stockID);
-    database::StockRecord record;
-    soci::indicator ind;
-    try
-    {
-        soci::statement st = (sql.prepare << query,
-                              soci::into(record));
-        st.execute(true);
-    }
-    catch (soci::mysql_soci_error const &e)
-    {
-        std::cerr << "MySQL error: " << e.err_num_
-                  << " " << e.what() << std::endl;
-        record.reset();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << e.what() << '\n';
-        record.reset();
-    }
-    return record;
+    return singleOutputQuery<StockRecord>(query);
 }
 
 bool database::mysql::MySQLClient::insert(const EquityRecord &equity)
