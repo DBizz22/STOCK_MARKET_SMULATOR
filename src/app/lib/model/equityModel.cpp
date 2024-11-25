@@ -9,6 +9,7 @@ void EquityData::convert(const database::EquityRecord &equityRecord, const datab
     quantity = equityRecord.quantity;
     totalValue = stockRecord.currentPrice * equityRecord.quantity;
     currency = stockRecord.currency;
+    profitLoss = (stockRecord.currentPrice - equityRecord.initialValue) * quantity;
     percentageChange = (stockRecord.currentPrice - equityRecord.initialValue) / equityRecord.initialValue * 100;
 }
 

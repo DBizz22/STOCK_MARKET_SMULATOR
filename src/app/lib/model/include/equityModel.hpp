@@ -18,6 +18,7 @@ struct EquityData
     double quantity{0};
     double totalValue{0};
     std::string currency;
+    double profitLoss{0};
     double percentageChange{0};
     void convert(const database::EquityRecord &equityRecord, const database::StockRecord &stockRecord);
 };
