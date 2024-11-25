@@ -1,3 +1,3 @@
 add_library(mySqlDatabase STATIC mySqlClient.cpp)
-target_include_directories(mySqlDatabase PUBLIC include ${MYSQL_INCLUDE_DIR}) # include/mysql)
-target_link_libraries(mySqlDatabase Boost::date_time soci_mysql_static soci_core_static ${MYSQL_LIBRARIES} databaseClientInterface) # soci_core soci_mysql)
+target_include_directories(mySqlDatabase PUBLIC include ${MYSQL_INCLUDE_DIR})
+target_link_libraries(mySqlDatabase Boost::date_time soci_mysql_static soci_core_static ${MYSQL_LIBRARIES} databaseClientInterface)

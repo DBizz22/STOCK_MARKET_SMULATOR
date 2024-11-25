@@ -1,5 +1,5 @@
 add_library(wxWidgetsPages STATIC loginPage.cpp registerPage.cpp profilePage.cpp equityPage.cpp menuBar.cpp stockMarketFrame.cpp)
 target_include_directories(wxWidgetsPages PUBLIC include)
-target_link_libraries(wxWidgetsPages wx::net wx::core wx::base logicModel mySqlDatabase curlStatic alphavantageStatic timeApiSTATIC databaseClientInterface stockApiInterface)
+target_link_libraries(wxWidgetsPages wx::net wx::core wx::base logicModel mySqlDatabase curlStatic alphavantageStatic timeApiSTATIC)
 include(BuildInfo)
 BuildInfo(wxWidgetsPages)
