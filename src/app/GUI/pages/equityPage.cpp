@@ -49,7 +49,7 @@ void EquityPage::createEquityTable(wxBoxSizer *mainSizer)
     equityDataTable->AppendColumn("Value", wxLIST_FORMAT_LEFT, 120);
     equityDataTable->AppendColumn("Quantity", wxLIST_FORMAT_LEFT, 120);
     equityDataTable->AppendColumn("Total", wxLIST_FORMAT_LEFT, 120);
-    equityDataTable->AppendColumn("Currency", wxLIST_FORMAT_LEFT, 120);
+    equityDataTable->AppendColumn("Gain", wxLIST_FORMAT_LEFT, 120);
     equityDataTable->AppendColumn(R"(% Return)", wxLIST_FORMAT_LEFT, 120);
     // equityDataTable->SetForegroundColour(wxColor(255, 255, 0));
     equityDataTable->SetBackgroundColour(wxColour(0, 0, 0));
@@ -258,7 +258,7 @@ void EquityPage::addEquityDataToTable(const EquityData &equityData)
     equityDataTable->SetItem(index, 1, formatValueStr(equityData.currentValue));
     equityDataTable->SetItem(index, 2, formatValueStr(equityData.quantity));
     equityDataTable->SetItem(index, 3, formatValueStr(equityData.totalValue));
-    equityDataTable->SetItem(index, 4, equityData.currency);
+    equityDataTable->SetItem(index, 4, formatValueStr(equityData.profitLoss));
     equityDataTable->SetItem(index, 5, formatValueStr(equityData.percentageChange) + "%");
     equityDataTable->SetItemFont(index, itemFont);
 
