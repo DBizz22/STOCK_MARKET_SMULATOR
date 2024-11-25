@@ -99,7 +99,7 @@ TEST_F(SearchModelTest, FindForexForexAPISendRequestFailure)
     EXPECT_TRUE(searchModel->findForex(forex.fromCurrency, forex.toCurrency).isEmpty());
 }
 
-TEST_F(SearchModelTest, FindForexAPIGetStockFailure)
+TEST_F(SearchModelTest, FindForexAPIGetForexFailure)
 {
     testing::Sequence seq;
     EXPECT_CALL(*timeApiMock, sendRequest()).Times(1).WillOnce(testing::Return(true));
@@ -109,6 +109,50 @@ TEST_F(SearchModelTest, FindForexAPIGetStockFailure)
     EXPECT_CALL(*stockApiMock, sendRequest()).Times(1).WillOnce(testing::Return(true));
     EXPECT_CALL(*stockApiMock, getForex()).Times(1).WillOnce(testing::Return(stockApi::Forex{}));
     EXPECT_TRUE(searchModel->findForex(forex.fromCurrency, forex.toCurrency).isEmpty());
+}
+
+TEST_F(SearchModelTest, FindForexAPIGetDigitalCurrencyToNonUSDFailure)
+{
+    // testing::Sequence seq;
+    EXPECT_CALL(*timeApiMock, sendRequest()).Times(3).WillRepeatedly(testing::Return(true));
+    EXPECT_CALL(*timeApiMock, getTime()).Times(3).WillRepeatedly(testing::Return(dateTime));
+    EXPECT_CALL(*databaseClientMock, getStock(testing::Eq("BTC"), testing::Eq("NGN"))).Times(1).WillOnce(testing::Return(database::StockRecord{}));
+    EXPECT_CALL(*databaseClientMock, getStock(testing::Eq("BTC"), testing::Eq("USD"))).Times(1).WillOnce(testing::Return(database::StockRecord{}));
+    EXPECT_CALL(*databaseClientMock, getStock(testing::Eq("USD"), testing::Eq("NGN"))).Times(1).WillOnce(testing::Return(database::StockRecord{}));
+
+    EXPECT_CALL(*stockApiMock, setRequest(testing::Eq("BTC"), testing::Eq("NGN"))).Times(1);
+    EXPECT_CALL(*stockApiMock, setRequest(testing::Eq("BTC"), testing::Eq("USD"))).Times(1);
+    EXPECT_CALL(*stockApiMock, setRequest(testing::Eq("USD"), testing::Eq("NGN"))).Times(1);
+
+    EXPECT_CALL(*stockApiMock, sendRequest()).Times(3).WillRepeatedly(testing::Return(true));
+
+    EXPECT_CALL(*stockApiMock, getForex()).Times(3).WillRepeatedly(testing::Return(stockApi::Forex{}));
+    EXPECT_TRUE(searchModel->findForex("BTC", "NGN").isEmpty());
+}
+
+TEST_F(SearchModelTest, FindDigitalCurrencyToNonUSDSuccess)
+{
+    database::StockRecord forexBTCtoUSD{1, "BTC", "USD", 50000, dateTime.date};
+    database::StockRecord forexUSDtoNGN{2, "USD", "NGN", 1600, dateTime.date};
+    SearchData expectedData{"BTC", forexBTCtoUSD.currentPrice * forexUSDtoNGN.currentPrice, "NGN"};
+    // testing::Sequence seq;
+    EXPECT_CALL(*timeApiMock, sendRequest()).Times(3).WillRepeatedly(testing::Return(true));
+    EXPECT_CALL(*timeApiMock, getTime()).Times(3).WillRepeatedly(testing::Return(dateTime));
+    EXPECT_CALL(*databaseClientMock, getStock(testing::Eq("BTC"), testing::Eq("NGN"))).Times(2).WillRepeatedly(testing::Return(database::StockRecord{}));
+    EXPECT_CALL(*databaseClientMock, getStock(testing::Eq("BTC"), testing::Eq("USD"))).Times(1).WillOnce(testing::Return(forexBTCtoUSD));
+    EXPECT_CALL(*databaseClientMock, getStock(testing::Eq("USD"), testing::Eq("NGN"))).Times(1).WillOnce(testing::Return(forexUSDtoNGN));
+
+    EXPECT_CALL(*stockApiMock, setRequest(testing::Eq("BTC"), testing::Eq("NGN"))).Times(1);
+
+    EXPECT_CALL(*stockApiMock, sendRequest()).Times(1).WillOnce(testing::Return(true));
+
+    EXPECT_CALL(*stockApiMock, getForex()).Times(1).WillOnce(testing::Return(stockApi::Forex{}));
+    EXPECT_CALL(*databaseClientMock, insert(database::StockRecord{0, "BTC", "NGN", forexBTCtoUSD.currentPrice * forexUSDtoNGN.currentPrice, dateTime.date})).Times(1).WillOnce(testing::Return(true));
+    SearchData searchedData = searchModel->findForex("BTC", "NGN");
+    EXPECT_FALSE(searchedData.isEmpty());
+    EXPECT_EQ(searchedData.symbol, expectedData.symbol);
+    EXPECT_EQ(searchedData.currentPrice, expectedData.currentPrice);
+    EXPECT_EQ(searchedData.currency, expectedData.currency);
 }
 
 TEST_F(SearchModelTest, FindForexUpdateDatabaseInsertFailure)
