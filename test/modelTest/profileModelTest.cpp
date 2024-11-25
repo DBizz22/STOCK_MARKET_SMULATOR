@@ -109,6 +109,16 @@ TEST_F(ProfileModelTest, ValidateProfileName)
     EXPECT_TRUE(profileModel->validateProfileName(validProfileName));
 }
 
+TEST_F(ProfileModelTest, InvalidateBadCurrencyCode)
+{
+    EXPECT_FALSE(profileModel->validateCurrency("invalid_currency_code"));
+}
+
+TEST_F(ProfileModelTest, ValidateCurrencyCode)
+{
+    EXPECT_TRUE(profileModel->validateCurrency("USD"));
+}
+
 TEST_F(ProfileModelTest, AddProfileInsertProfileRecordFailure)
 {
     database::ProfileRecord newProfileRecord = profileRecord;
