@@ -3,12 +3,8 @@
 const int EquityPage::Width = 760;
 const int EquityPage::Height = 610;
 
-void EquityPage::createHeaders(wxBoxSizer *mainSizer)
+void EquityPage::updateHeaders()
 {
-    auto label = new wxStaticText(panel, wxID_ANY, profileData_.name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
-    label->SetFont(font);
-    label->SetFont(label->GetFont().Scale(2));
-
     std::string details = " Count: " + std::to_string(profileData_.equitiesCount);
     details += "        Value: " + formatValueStr(profileData_.equitiesValue);
     details += "        Balance: " + formatValueStr(profileData_.balance) + " \n";
@@ -16,12 +12,18 @@ void EquityPage::createHeaders(wxBoxSizer *mainSizer)
         details += " Profit: ";
     else
         details += " Loss: ";
-    double profitLoss = profileData_.balance + profileData_.equitiesValue - databaseClient_->getProfile(profileData_.ID).initialValue;
-    details += formatValueStr(profitLoss);
+    details += formatValueStr(profileData_.profitLoss);
     details += "        % Return: " + formatValueStr(profileData_.percentageChange);
     details += "    " + profileData_.currency + " ";
-
-    detailsLabel = new wxStaticText(panel, wxID_ANY, details.c_str(), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER);
+    detailsLabel->SetLabel(details.c_str());
+}
+void EquityPage::createHeaders(wxBoxSizer *mainSizer)
+{
+    auto label = new wxStaticText(panel, wxID_ANY, profileData_.name, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
+    label->SetFont(font);
+    label->SetFont(label->GetFont().Scale(2));
+    detailsLabel = new wxStaticText(panel, wxID_ANY, " ", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER);
+    updateHeaders();
     detailsLabel->SetFont(font);
     if (profileData_.percentageChange < 0)
         detailsLabel->SetForegroundColour(wxColor(255, 0, 0));
@@ -339,32 +341,11 @@ void EquityPage::updateDetails(const std::string &symbol, const double &price, c
 
 void EquityPage::updateEquityTable()
 {
+    updateHeaders();
     equityDataTable->DeleteAllItems();
     equityDataPtrs.clear();
     std::for_each(equityDatas_.begin(), equityDatas_.end(), [this](auto &equityData)
                   { addEquityDataToTable(equityData); });
-
-    std::string details = " Count: " + std::to_string(profileData_.equitiesCount);
-    details += "        Value: " + formatValueStr(profileData_.equitiesValue);
-    details += "        Balance: " + formatValueStr(profileData_.balance) + " \n";
-    if (profileData_.percentageChange >= 0)
-        details += " Profit: ";
-    else
-        details += " Loss: ";
-    double profitLoss = profileData_.balance + profileData_.equitiesValue - databaseClient_->getProfile(profileData_.ID).initialValue;
-    details += formatValueStr(profitLoss);
-    details += "        % Return: " + formatValueStr(profileData_.percentageChange);
-    details += "    " + profileData_.currency + " ";
-
-    detailsLabel->SetLabel(details.c_str());
-    if (profileData_.percentageChange < 0)
-        detailsLabel->SetForegroundColour(wxColor(255, 0, 0));
-    else if (profileData_.percentageChange > 0)
-        detailsLabel->SetForegroundColour(wxColor(0, 255, 0));
-    else
-        detailsLabel->SetForegroundColour(wxColor(255, 255, 255));
-    detailsLabel->SetBackgroundColour(wxColor(0, 0, 0));
-
     frame_->Refresh();
 }
 

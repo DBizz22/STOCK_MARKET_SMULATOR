@@ -15,8 +15,7 @@ public:
 private:
     ProfileData selectedProfileData;
     database::AccountRecord account;
-    // database::ProfileRecord profileRecords;
-    database::mysql::connectionParams params;
+    database::mysql::connectionParams credentials;
     std::shared_ptr<RefreshModel> refreshModel_;
     std::shared_ptr<LoginPage> loginPage;
     std::shared_ptr<RegisterPage> registerPage;

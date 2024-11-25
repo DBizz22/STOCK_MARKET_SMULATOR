@@ -60,7 +60,7 @@ private:
     bool switchToEquityPage();
 
 public:
-    explicit ProfilePage(wxFrame *frame, PAGES &currentPage, ProfileData &selectedProfileData, database::AccountRecord &account, std::shared_ptr<database::DatabaseClient> databaseClient, std::shared_ptr<ApiManager> &apiManager);
+    explicit ProfilePage(wxFrame *frame, PAGES &currentPage, ProfileData &selectedProfileData, database::AccountRecord &account, const std::shared_ptr<database::DatabaseClient> &databaseClient, std::shared_ptr<ApiManager> &apiManager);
     void create();
     void close();
     ~ProfilePage();

@@ -1,18 +1,16 @@
 #include "stockMarketFrame.hpp"
+#include <stdbool.h>
 
 const std::string KEY("8ZVH03NQVEYUSF4V");
 
 StockMarketFrame::StockMarketFrame() : wxFrame(nullptr, wxID_ANY, "STOCK MARKET SIMULATOR")
 {
-    params.database = "stock_db";
-    params.user = "root";
-    params.password = "enyiudo12real";
-    databaseClient = std::make_shared<database::mysql::MySQLClient>(params);
+    credentials.database = "stock_db";
+    credentials.user = "root";
+    credentials.password = "enyiudo12real";
+    databaseClient = std::make_shared<database::mysql::MySQLClient>(credentials);
 
     httpClient = std::make_shared<CurlClient>();
-    // std::shared_ptr<TimeApi> UTCTime = std::make_shared<UTCTimeApi>(httpClient);
-    // std::shared_ptr<stockApi::ApiBase> stockApi = std::make_shared<stockApi::alphavantageApiSuite::alphavantageApi<stockApi::alphavantageApiSuite::SuiteStockData>>(KEY, httpClient);
-    // std::shared_ptr<stockApi::ApiBase> forexApi = std::make_shared<stockApi::alphavantageApiSuite::alphavantageApi<stockApi::alphavantageApiSuite::SuiteForexData>>(KEY, httpClient);
     apiManager = std::make_shared<ApiManager>();
     apiManager->UTCTimeApi = std::make_shared<UTCTimeApi>(httpClient);
     apiManager->stockApi = std::make_shared<stockApi::alphavantageApiSuite::alphavantageApi<stockApi::alphavantageApiSuite::SuiteStockData>>(KEY, httpClient);

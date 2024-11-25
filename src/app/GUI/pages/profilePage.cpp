@@ -52,21 +52,8 @@ void ProfilePage::sortByColumn(int column)
     this->sortDirection[column] = -this->sortDirection[column];
 }
 
-void ProfilePage::updateProfileTable()
-{
-    profileDataTable->DeleteAllItems();
-    profileDataPtrs.clear();
-    std::for_each(profileDatas_.begin(), profileDatas_.end(), [this](auto &profileData)
-                  { addProfileDataToTable(profileData); });
-    frame_->Refresh();
-}
-
 void ProfilePage::addProfileDataToTable(const ProfileData &profileData)
 {
-    std::string balanceStr = std::to_string(profileData.balance);
-    int pos = balanceStr.find('.');
-    balanceStr.erase(pos + 3, balanceStr.size() - (pos + 3));
-
     int index = profileDataTable->GetItemCount();
     wxFont itemFont;
     itemFont.SetWeight(wxFONTWEIGHT_EXTRAHEAVY);
@@ -76,7 +63,7 @@ void ProfilePage::addProfileDataToTable(const ProfileData &profileData)
     profileDataTable->SetItem(index, 1, profileData.currency);
     profileDataTable->SetItem(index, 2, std::to_string(profileData.equitiesCount));
     profileDataTable->SetItem(index, 3, std::to_string(profileData.equitiesValue));
-    profileDataTable->SetItem(index, 4, balanceStr);
+    profileDataTable->SetItem(index, 4, std::to_string(profileData.balance));
     profileDataTable->SetItem(index, 5, std::to_string(profileData.percentageChange) + "%");
     profileDataTable->SetItemFont(index, itemFont);
 
@@ -91,6 +78,15 @@ void ProfilePage::addProfileDataToTable(const ProfileData &profileData)
 
     profileDataTable->SetItemPtrData(index, reinterpret_cast<wxIntPtr>(dataPtr.get()));
     profileDataPtrs.insert(std::move(dataPtr));
+}
+
+void ProfilePage::updateProfileTable()
+{
+    profileDataTable->DeleteAllItems();
+    profileDataPtrs.clear();
+    std::for_each(profileDatas_.begin(), profileDatas_.end(), [this](auto &profileData)
+                  { addProfileDataToTable(profileData); });
+    frame_->Refresh();
 }
 
 void ProfilePage::closeNewProfilePage()
@@ -161,6 +157,11 @@ void ProfilePage::openNewProfilePage()
                     if(!profileModel_->validateProfileName(name))
                     {
                         wxMessageBox("Invalid profile name", "Error");
+                        return;
+                    }
+                    if(!profileModel_->validateCurrency(currency))
+                    {
+                        wxMessageBox("Invalid currency", "Error");
                         return;
                     }
                     if (!profileModel_->addProfile(name, balance, currency))
@@ -366,7 +367,7 @@ bool ProfilePage::switchToEquityPage()
     return true;
 }
 
-ProfilePage::ProfilePage(wxFrame *frame, PAGES &currentPage, ProfileData &selectedProfileData, database::AccountRecord &account, std::shared_ptr<database::DatabaseClient> databaseClient, std::shared_ptr<ApiManager> &apiManager)
+ProfilePage::ProfilePage(wxFrame *frame, PAGES &currentPage, ProfileData &selectedProfileData, database::AccountRecord &account, const std::shared_ptr<database::DatabaseClient> &databaseClient, std::shared_ptr<ApiManager> &apiManager)
     : frame_(frame), currentPage_(currentPage), selectedProfileData_(selectedProfileData), account_(account), databaseClient_(databaseClient), apiManager_(apiManager)
 {
     font.SetWeight(wxFONTWEIGHT_EXTRABOLD);

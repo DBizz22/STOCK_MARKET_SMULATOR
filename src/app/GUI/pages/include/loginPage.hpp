@@ -3,8 +3,6 @@
 
 #include "coordinator.hpp"
 
-// enumPAGES;
-
 class LoginPage
 {
 private:
@@ -25,7 +23,7 @@ private:
     void switchToSignUp(wxCommandEvent &event);
 
 public:
-    explicit LoginPage(wxFrame *frame, PAGES &currentPage, database::AccountRecord &account, std::shared_ptr<database::DatabaseClient> databaseClient);
+    explicit LoginPage(wxFrame *frame, PAGES &currentPage, database::AccountRecord &account, const std::shared_ptr<database::DatabaseClient> &databaseClient);
     void create();
     void close();
     ~LoginPage();

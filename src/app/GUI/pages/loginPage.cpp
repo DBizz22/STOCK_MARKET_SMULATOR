@@ -83,7 +83,7 @@ void LoginPage::signIn(wxCommandEvent &event)
     event.Skip();
 }
 
-LoginPage::LoginPage(wxFrame *frame, PAGES &currentPage, database::AccountRecord &account, std::shared_ptr<database::DatabaseClient> databaseClient)
+LoginPage::LoginPage(wxFrame *frame, PAGES &currentPage, database::AccountRecord &account, const std::shared_ptr<database::DatabaseClient> &databaseClient)
     : frame_(frame), currentPage_(currentPage), account_(account), signInModel(account_, databaseClient)
 {
     font.SetWeight(wxFONTWEIGHT_EXTRABOLD);

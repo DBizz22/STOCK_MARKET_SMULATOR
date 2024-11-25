@@ -52,6 +52,7 @@ private:
     void createTradeDeskTradeDetails(wxPanel *tradePanel, wxFlexGridSizer *grid);
     void createTradeDeskButtons(wxPanel *tradePanel, wxFlexGridSizer *grid);
     void createTradeDesk(wxBoxSizer *mainSizer);
+    void updateHeaders();
     void updateEquityTable();
 
 public:

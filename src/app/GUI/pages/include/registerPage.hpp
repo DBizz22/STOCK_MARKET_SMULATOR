@@ -22,7 +22,7 @@ private:
     void switchToSignIn(wxCommandEvent &event);
 
 public:
-    explicit RegisterPage(wxFrame *frame, PAGES &currentPage, std::shared_ptr<database::DatabaseClient> databaseClient);
+    explicit RegisterPage(wxFrame *frame, PAGES &currentPage, const std::shared_ptr<database::DatabaseClient> &databaseClient);
     void create();
     void close();
     ~RegisterPage();

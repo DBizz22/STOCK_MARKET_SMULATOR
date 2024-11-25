@@ -98,8 +98,8 @@ void RegisterPage::signUp(wxCommandEvent &event)
     switchToSignIn(event);
 }
 
-RegisterPage::RegisterPage(wxFrame *frame, PAGES &currentPage, std::shared_ptr<database::DatabaseClient> databaseClient)
-    : signUpModel(databaseClient), databaseClient_(databaseClient), frame_(frame), currentPage_(currentPage)
+RegisterPage::RegisterPage(wxFrame *frame, PAGES &currentPage, const std::shared_ptr<database::DatabaseClient> &databaseClient)
+    : frame_(frame), currentPage_(currentPage), databaseClient_(databaseClient), signUpModel(databaseClient)
 {
     font.SetWeight(wxFONTWEIGHT_EXTRABOLD);
     font.Scale(2);
