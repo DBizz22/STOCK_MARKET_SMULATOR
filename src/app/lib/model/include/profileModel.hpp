@@ -19,6 +19,7 @@ struct ProfileData
     double equitiesValue{0};
     double balance{0};
     std::string currency;
+    double profitLoss{0};
     double percentageChange{0};
     void convert(const database::ProfileRecord &profileRecord, const unsigned int &equitiesCount_, const double &equitiesValue_);
 };
@@ -29,8 +30,7 @@ private:
     unsigned int accountID_;
     std::shared_ptr<database::DatabaseClient> databaseClient_;
     std::vector<ProfileData> &profileDatas_;
-    unsigned int getEquitiesCount(const unsigned int &profileID);
-    double getEquitiesValue(const unsigned int &profileID);
+    double getEquitiesValue(const std::vector<database::EquityRecord> &equityRecords);
     ProfileData getProfileData(const database::ProfileRecord &profileRecord);
     void loadProfileDatas();
     void addProfileData(const std::vector<database::ProfileRecord> &profileRecords);
@@ -38,7 +38,8 @@ private:
 public:
     explicit ProfileModel(const unsigned int &accountID, std::vector<ProfileData> &profileDatas, const std::shared_ptr<database::DatabaseClient> &databaseClient);
     bool validateProfileName(const std::string &name);
-    bool addProfile(const std::string &name, const double &value = DEFAULT_VALUE, const std::string &currency = DEFAULT_CURRENCY);
+    bool validateCurrency(const std::string &currencyCode);
+    bool addProfile(const std::string &name, const double &value = DEFAULT_VALUE, const std::string &currencyCode = DEFAULT_CURRENCY);
     bool modifyProfileName(const unsigned int &profileID, const std::string &newName);
     bool removeProfile(const unsigned int &profileID);
 };
