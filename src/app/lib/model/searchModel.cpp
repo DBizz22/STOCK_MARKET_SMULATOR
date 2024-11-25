@@ -1,6 +1,27 @@
 #include "searchModel.hpp"
 
 const int SecondsInOneDay = 86400;
+const std::vector<std::string> CurrencyCodes{
+    "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN",
+    "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BZD",
+    "CAD", "CDF", "CHF", "CLF", "CLP", "CNH", "CNY", "COP", "CUP", "CVE", "CZK",
+    "DJF", "DKK", "DOP", "DZD",
+    "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD",
+    "HKD", "HNL", "HRK", "HTG", "HUF", "ICP", "IDR", "ILS", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "JPY",
+    "KES", "KGS", "KHR", "KMF", "KPW", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD",
+    "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRO", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN",
+    "NAD", "NGN", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG",
+    "QAR", "RON", "RSD", "RUB", "RUR", "RWF", "SAR", "SBDF", "SCR", "SDG", "SDR", "SEK", "SGD", "SHP", "SLL", "SOS", "SRD", "SYP", "SZL",
+    "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "USD", "UYU", "UZS",
+    "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"};
+
+bool isDigitalCurrency(const std::string &currency)
+{
+    auto iter = std::find(CurrencyCodes.begin(), CurrencyCodes.end(), currency);
+    if (iter != CurrencyCodes.end())
+        return false;
+    return true;
+}
 
 void SearchData::convert(const database::StockRecord &stockRecord)
 {
@@ -60,7 +81,6 @@ bool SearchModel::updateDatabase(const SearchData &data)
 
 SearchData SearchModel::apiGetForex(const std::string &fromCurrency, const std::string &toCurrency)
 {
-    // TODO: update test for additional currency conversion
     SearchData result;
     apiManager_.forexApi->setRequest(fromCurrency, toCurrency);
     if (!apiManager_.forexApi->sendRequest())
@@ -68,7 +88,7 @@ SearchData SearchModel::apiGetForex(const std::string &fromCurrency, const std::
 
     result.convert(apiManager_.forexApi->getForex());
 
-    if (result.isEmpty() && toCurrency != "USD")
+    if (result.isEmpty() && isDigitalCurrency(fromCurrency) && toCurrency != "USD")
     {
         SearchData result2, result3;
         result2 = findForex(fromCurrency, "USD");
